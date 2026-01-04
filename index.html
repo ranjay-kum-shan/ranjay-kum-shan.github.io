@@ -3,13 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Professional portfolio of Ranjay — projects, skills, and contact." />
-  <title>Ranjay | Portfolio</title>
+  <meta name="description" content="Professional portfolio of Ranjay Kumar — Embedded Software Engineer specializing in firmware and embedded systems development." />
+  <meta name="keywords" content="Embedded Software Engineer, Firmware Developer, Portfolio, C/C++, Python, Java" />
+  <meta name="author" content="Ranjay Kumar" />
+  <meta property="og:title" content="Ranjay Kumar | Embedded Software Engineer Portfolio" />
+  <meta property="og:description" content="Professional portfolio showcasing embedded systems projects, skills, and experience." />
+  <meta property="og:type" content="website" />
+  <title>Ranjay Kumar | Portfolio</title>
 
   <link rel="icon" href="assets/avatar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -34,18 +39,24 @@
       </nav>
 
       <button id="themeToggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
-        <span class="icon" aria-hidden="true">◐</span>
+        <span class="icon theme-icon" aria-hidden="true">◐</span>
       </button>
     </div>
   </header>
 
+  <!-- Scroll Progress Indicator -->
+  <div id="scrollProgress" class="scroll-progress" aria-hidden="true"></div>
+
   <main id="main">
     <section id="top" class="hero">
       <div class="container hero-inner">
-        <div class="hero-text">
-          <p class="eyebrow">Hello — I’m</p>
-          <h1 class="hero-title">Ranjay</h1>
-          <p class="hero-subtitle" id="tagline">Software Developer • Open to opportunities</p>
+        <div class="hero-text fade-in">
+          <p class="eyebrow">Hello — I'm</p>
+          <h1 class="hero-title">Ranjay Kumar</h1>
+          <p class="hero-subtitle">
+            <span id="typingText"></span>
+            <span class="typing-cursor">|</span>
+          </p>
 
           <div class="hero-actions">
             <a class="btn primary" href="#projects">View Projects</a>
@@ -55,7 +66,7 @@
           <div class="social-row" id="socialRow" aria-label="Social links"></div>
         </div>
 
-        <div class="hero-card" aria-label="Quick stats">
+        <div class="hero-card fade-in-delayed" aria-label="Quick stats">
           <div class="stat">
             <div class="stat-value" id="statYears">—</div>
             <div class="stat-label">Years Experience</div>
@@ -73,10 +84,10 @@
       </div>
     </section>
 
-    <section id="about" class="section">
+    <section id="about" class="section observe-fade">
       <div class="container">
         <h2>About</h2>
-        <div class="card">
+        <div class="card card-hover">
           <p id="aboutText">
             I build reliable, maintainable software and enjoy turning ambiguous requirements into clear, usable solutions.
             I’m comfortable across the stack, love learning new tools, and care about clean architecture and shipping.
@@ -86,15 +97,15 @@
       </div>
     </section>
 
-    <section id="skills" class="section">
+    <section id="skills" class="section observe-fade">
       <div class="container">
         <h2>Skills</h2>
         <p class="section-lead">A snapshot of tools and technologies I work with.</p>
-        <div class="grid" id="skillsGrid"></div>
+        <div class="grid stagger-children" id="skillsGrid"></div>
       </div>
     </section>
 
-    <section id="projects" class="section">
+    <section id="projects" class="section observe-fade">
       <div class="container">
         <div class="section-head">
           <div>
@@ -111,9 +122,9 @@
           </div>
         </div>
 
-        <div class="grid projects" id="featuredProjects"></div>
+        <div class="grid projects stagger-children" id="featuredProjects"></div>
 
-        <div class="card subtle">
+        <div class="card subtle card-hover">
           <div class="row between">
             <h3 class="h3">Latest from GitHub</h3>
             <button class="btn small" id="refreshRepos">Refresh</button>
@@ -124,24 +135,24 @@
       </div>
     </section>
 
-    <section id="experience" class="section">
+    <section id="experience" class="section observe-fade">
       <div class="container">
         <h2>Experience</h2>
-        <div class="timeline" id="experienceTimeline"></div>
+        <div class="timeline stagger-children" id="experienceTimeline"></div>
       </div>
     </section>
 
-    <section id="education" class="section">
+    <section id="education" class="section observe-fade">
       <div class="container">
         <h2>Education</h2>
-        <div class="grid" id="educationGrid"></div>
+        <div class="grid stagger-children" id="educationGrid"></div>
       </div>
     </section>
 
-    <section id="contact" class="section">
+    <section id="contact" class="section observe-fade">
       <div class="container">
         <h2>Contact</h2>
-        <div class="card">
+        <div class="card card-hover">
           <p class="section-lead" id="contactBlurb">
             Want to collaborate, hire, or chat about a project? Reach out — I’ll respond quickly.
           </p>
@@ -172,10 +183,15 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <span id="footerText">© <span id="year"></span> Ranjay</span>
+      <span id="footerText">© <span id="year"></span> Ranjay Kumar</span>
       <span class="muted">Last updated: <span id="lastUpdated"></span></span>
     </div>
   </footer>
+
+  <!-- Scroll to Top Button -->
+  <button id="scrollToTop" class="scroll-to-top" aria-label="Scroll to top" title="Back to top">
+    <span aria-hidden="true">↑</span>
+  </button>
 
   <script src="profile.js"></script>
   <script src="script.js"></script>

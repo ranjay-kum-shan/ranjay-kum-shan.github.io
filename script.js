@@ -322,6 +322,61 @@ function renderProfile(){
     eg.appendChild(card);
   });
 
+  // Patents
+  const pg = $("patentsGrid");
+  if (pg && p.patents) {
+    pg.innerHTML = "";
+    (p.patents || []).forEach(patent => {
+      const card = document.createElement("div");
+      card.className = "patent-card";
+      
+      const header = document.createElement("div");
+      header.className = "patent-header";
+      
+      const title = document.createElement("h3");
+      title.className = "patent-title";
+      title.textContent = patent.title;
+      
+      const status = document.createElement("span");
+      status.className = "patent-status";
+      status.textContent = patent.status;
+      
+      header.appendChild(title);
+      header.appendChild(status);
+      
+      const meta = document.createElement("div");
+      meta.className = "patent-meta";
+      meta.innerHTML = `
+        <span class="patent-number">📄 ${patent.number}</span>
+        <span class="patent-office">${patent.office}</span>
+        <span class="patent-date">📅 ${patent.date}</span>
+      `;
+      
+      const inventors = document.createElement("p");
+      inventors.className = "patent-inventors";
+      inventors.textContent = `Inventors: ${patent.inventors}`;
+      
+      const desc = document.createElement("p");
+      desc.className = "patent-desc";
+      desc.textContent = patent.description;
+      
+      const link = document.createElement("a");
+      link.className = "patent-link";
+      link.href = patent.url;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.innerHTML = `View Patent ↗`;
+      
+      card.appendChild(header);
+      card.appendChild(meta);
+      card.appendChild(inventors);
+      card.appendChild(desc);
+      card.appendChild(link);
+      
+      pg.appendChild(card);
+    });
+  }
+
   // Contact
   $("contactBlurb").textContent = (p.contact && p.contact.blurb) ? p.contact.blurb : "";
   $("emailText").textContent = p.contact.email || "your.email@example.com";

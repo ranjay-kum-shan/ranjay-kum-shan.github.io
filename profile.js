@@ -23,13 +23,13 @@ window.PROFILE = {
     "I'm an Embedded Software Engineer with a passion for building efficient, reliable systems. " +
     "I specialize in firmware development, bare-metal programming, and creating solutions that bridge hardware and software. " +
     "With experience in C/C++, Python, and various microcontroller platforms, I enjoy tackling complex technical challenges " +
-    "and optimizing system performance. I'm always eager to learn new technologies and contribute to innovative projects.",
+    "and optimizing system performance. I hold a patent in emergency exit route indication systems for building management and am always eager to learn new technologies and contribute to innovative projects.",
 
   highlights: [
+    "Patent holder: Continuous Airworthiness Management System (EP4246479A1)",
     "Strong fundamentals in data structures, algorithms, OOP, debugging, and embedded systems testing",
     "Hands-on experience with RTOS, bare-metal programming, device drivers, and serial communication protocols (UART/I2C/SPI)",
-    "Full-stack capabilities with backend development experience in REST APIs, Node.js, Spring, and database management",
-    "Open to roles in embedded systems, firmware engineering, IoT development, and software engineering"
+    "Full-stack capabilities with backend development experience in REST APIs, Node.js, Spring, and database management"
   ],
 
   skills: [
@@ -62,29 +62,38 @@ window.PROFILE = {
   // Featured projects you want to showcase (manual). Replace with your real projects.
   featuredProjects: [
     {
-      title: "IoT Weather Station",
-      description: "Developed an embedded weather monitoring system using ESP32 with real-time data collection from multiple sensors, cloud integration, and a responsive web dashboard for data visualization.",
-      tech: ["C++", "ESP32", "MQTT", "Node.js", "REST API"],
+      title: "Building Emergency Exit Route Indication System",
+      description: "Developed embedded firmware for intelligent emergency exit route indication in building management control panels. Implemented real-time monitoring of building conditions, dynamic route calculation algorithms, and visual/audio guidance systems for optimal evacuation paths during emergencies.",
+      tech: ["C/C++", "Embedded Linux", "CAN Bus", "MQTT", "Python"],
       links: [
-        { label: "GitHub Repo", url: "https://github.com/ranjay-kum-shan" },
-        { label: "Live Demo", url: "" }
+        { label: "Patent", url: "https://patents.google.com/patent/EP4246479A1/en" },
+        { label: "Details", url: "" }
       ]
     },
     {
-      title: "Real-Time Operating System Task Scheduler",
-      description: "Implemented a priority-based task scheduler for an RTOS on ARM Cortex-M4, optimizing context switching and reducing latency by 30%. Includes mutex, semaphore, and queue implementations.",
-      tech: ["C", "ARM Cortex-M4", "RTOS", "Embedded C"],
+      title: "IoT Environmental Monitoring System",
+      description: "Built an IoT-based environmental monitoring solution with ESP32 microcontroller. Features include multi-sensor data collection (temperature, humidity, air quality), cloud integration via MQTT, and real-time data visualization dashboard.",
+      tech: ["C++", "ESP32", "MQTT", "FreeRTOS", "Node.js", "MongoDB"],
       links: [
-        { label: "GitHub Repo", url: "https://github.com/ranjay-kum-shan" },
+        { label: "GitHub", url: "https://github.com/ranjay-kum-shan" },
+        { label: "Demo", url: "" }
+      ]
+    },
+    {
+      title: "Real-Time Embedded System Scheduler",
+      description: "Implemented a custom priority-based task scheduler for ARM Cortex-M4 RTOS. Optimized context switching mechanisms, implemented synchronization primitives (mutexes, semaphores), and reduced task latency by 30% through efficient scheduling algorithms.",
+      tech: ["C", "ARM Cortex-M4", "RTOS", "Assembly", "JTAG Debugging"],
+      links: [
+        { label: "GitHub", url: "https://github.com/ranjay-kum-shan" },
         { label: "Documentation", url: "" }
       ]
     },
     {
-      title: "Smart Home Automation Controller",
-      description: "Built a modular smart home system with custom PCB design, integrating multiple sensors and actuators. Features voice control, mobile app interface, and energy consumption monitoring.",
-      tech: ["C/C++", "Arduino", "Python", "MQTT", "React"],
+      title: "Smart Home Automation Hub",
+      description: "Designed and developed a centralized smart home controller with custom PCB. Integrated multiple communication protocols (WiFi, Zigbee, BLE), implemented voice control via Alexa integration, and created mobile app for remote device management.",
+      tech: ["C/C++", "Arduino", "ESP32", "Python", "React Native", "Firebase"],
       links: [
-        { label: "GitHub Repo", url: "https://github.com/ranjay-kum-shan" },
+        { label: "GitHub", url: "https://github.com/ranjay-kum-shan" },
         { label: "Demo Video", url: "" }
       ]
     }
@@ -123,6 +132,19 @@ window.PROFILE = {
     {
       title: "Embedded Systems Certification",
       meta: "Online Platform (Coursera/Udemy) • 2022"
+    }
+  ],
+
+  patents: [
+    {
+      title: "Exit route indication via synchronized audible cues",
+      number: "EP4246479A1",
+      office: "Worldwide applications",
+      status: "Published",
+      date: "2023",
+      inventors: "Ranjay Kumar, et al.",
+      url: "https://patents.google.com/patent/EP4246479A1/en",
+      description: "A system and method for intelligent emergency exit route indication and management in building control systems. Provides real-time recommendations for optimal evacuation paths during emergency situations."
     }
   ],
 

@@ -112,7 +112,7 @@ window.PROFILE = {
       description: "Designed and developed a centralized smart home controller with custom PCB. Integrated multiple communication protocols (WiFi, Zigbee, BLE), implemented voice control via Alexa integration, and created mobile app for remote device management.",
       tech: ["C/C++", "Arduino", "ESP32", "Python", "React Native", "Firebase"],
       links: [
-        { label: "GitHub", url: "https://github.com/ranjay-kum-shan" },
+        { label: "Patent", url: "https://github.com/ranjay-kum-shan" },
         { label: "Demo Video", url: "" }
       ]
     }

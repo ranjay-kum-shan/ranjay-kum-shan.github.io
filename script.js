@@ -15,6 +15,84 @@ function initTheme(){
   setTheme(prefersLight ? "light" : "dark");
 }
 
+// Typing animation for hero subtitle
+function typeText(text, elementId, speed = 80) {
+  const element = $(elementId);
+  if (!element) return;
+  
+  let index = 0;
+  element.textContent = '';
+  
+  function type() {
+    if (index < text.length) {
+      element.textContent += text.charAt(index);
+      index++;
+      setTimeout(type, speed);
+    }
+  }
+  
+  setTimeout(type, 500); // Delay before starting
+}
+
+// Intersection Observer for fade-in animations
+function initScrollAnimations() {
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  // Observe sections
+  document.querySelectorAll('.observe-fade').forEach(el => observer.observe(el));
+  
+  // Observe stagger children
+  document.querySelectorAll('.stagger-children').forEach(el => observer.observe(el));
+}
+
+// Scroll progress indicator
+function updateScrollProgress() {
+  const scrollProgress = $('scrollProgress');
+  if (!scrollProgress) return;
+  
+  const windowHeight = window.innerHeight;
+  const documentHeight = document.documentElement.scrollHeight - windowHeight;
+  const scrolled = window.scrollY;
+  const progress = (scrolled / documentHeight) * 100;
+  
+  scrollProgress.style.width = `${progress}%`;
+}
+
+// Scroll to top button
+function initScrollToTop() {
+  const scrollBtn = $('scrollToTop');
+  if (!scrollBtn) return;
+  
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      scrollBtn.classList.add('visible');
+    } else {
+      scrollBtn.classList.remove('visible');
+    }
+    
+    updateScrollProgress();
+  });
+  
+  scrollBtn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+}
+
 function pillLink(label, url){
   const a = document.createElement("a");
   a.className = "social-pill";
@@ -33,7 +111,11 @@ function renderProfile(){
 
   document.title = `${p.name} | Portfolio`;
 
-  $("tagline").textContent = p.tagline;
+  // Start typing animation for tagline
+  if (p.tagline) {
+    typeText(p.tagline, 'typingText', 60);
+  }
+
   $("statYears").textContent = p.yearsExperience;
   $("statFocus").textContent = p.focus;
   $("statLocation").textContent = p.location;
@@ -216,10 +298,26 @@ async function fetchGithubRepos(){
   const note = $("repoNote");
   rememberLoading(true);
 
+  // Show loading skeleton
+  grid.innerHTML = Array(limit).fill(0).map(() => `
+    <div class="repo-card" style="opacity: 0.6;">
+      <div class="repo-top">
+        <span class="repo-name">Loading...</span>
+        <span class="meta-pill">—</span>
+      </div>
+      <p class="repo-desc">Fetching repository data...</p>
+    </div>
+  `).join('');
+
   try{
     // Public GitHub API (unauthenticated rate limits apply).
     const url = `https://api.github.com/users/${encodeURIComponent(user)}/repos?per_page=100&sort=updated`;
-    const res = await fetch(url, { headers: { "Accept":"application/vnd.github+json" }});
+    const res = await fetch(url, { 
+      headers: { 
+        "Accept":"application/vnd.github+json",
+        "User-Agent": "Portfolio-Site"
+      }
+    });
     if(!res.ok) throw new Error(`GitHub API returned ${res.status}`);
 
     const repos = await res.json();
@@ -233,11 +331,13 @@ async function fetchGithubRepos(){
       note.textContent = "No public repos found yet. Make a repository public and click Refresh.";
       return;
     }
-    note.textContent = "Showing public repositories via GitHub API.";
+    note.textContent = `Showing ${top.length} public repositories via GitHub API.`;
 
-    top.forEach(r => {
+    top.forEach((r, index) => {
       const card = document.createElement("div");
       card.className = "repo-card";
+      card.style.opacity = "0";
+      card.style.transform = "translateY(20px)";
 
       const topRow = document.createElement("div");
       topRow.className = "repo-top";
@@ -262,10 +362,15 @@ async function fetchGithubRepos(){
 
       const bottom = document.createElement("div");
       bottom.className = "repo-bottom";
+      const updatedDate = new Date(r.updated_at).toLocaleDateString(undefined, { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
       bottom.innerHTML = `
-        <span>★ ${r.stargazers_count}</span>
-        <span>⑂ ${r.forks_count}</span>
-        <span>Updated ${new Date(r.updated_at).toLocaleDateString()}</span>
+        <span>⭐ ${r.stargazers_count}</span>
+        <span>🔱 ${r.forks_count}</span>
+        <span>📅 ${updatedDate}</span>
       `;
 
       card.appendChild(topRow);
@@ -273,10 +378,40 @@ async function fetchGithubRepos(){
       card.appendChild(bottom);
 
       grid.appendChild(card);
+  
+  // Smooth scroll for navigation links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      const href = this.getAttribute('href');
+      if (href === '#' || href === '#top') return;
+      
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+}
+
+(function init(){
+  initTheme();
+  renderProfile();
+  initEvents();
+  initScrollAnimations();
+  initScrollToTop();
+  fetchGithubRepos();
+  
+  // Update scroll progress on scroll
+  window.addEventListener('scroll', updateScrollProgress0);
     });
   }catch(err){
-    note.textContent = "Could not load GitHub repos right now (rate limit or network). Try again later.";
-    console.error(err);
+    grid.innerHTML = "";
+    note.textContent = "Could not load GitHub repos right now (rate limit or network issue). Try again later.";
+    console.error("GitHub API Error:", err);
   }finally{
     rememberLoading(false);
   }

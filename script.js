@@ -93,6 +93,62 @@ function initScrollToTop() {
   });
 }
 
+// Parallax scrolling effect for layers
+function initParallax() {
+  const parallaxElements = document.querySelectorAll('.parallax-layer, .parallax-bg');
+  
+  function updateParallax() {
+    const scrolled = window.scrollY;
+    
+    parallaxElements.forEach(element => {
+      const speed = parseFloat(element.dataset.speed) || 0.5;
+      const rect = element.getBoundingClientRect();
+      const elementTop = rect.top + scrolled;
+      const elementHeight = rect.height;
+      const windowHeight = window.innerHeight;
+      
+      // Only apply parallax when element is in viewport
+      if (scrolled + windowHeight > elementTop && scrolled < elementTop + elementHeight) {
+        const yPos = (scrolled - elementTop) * speed;
+        element.style.transform = `translateY(${yPos}px)`;
+      }
+    });
+  }
+  
+  // Use requestAnimationFrame for smooth performance
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        updateParallax();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+  
+  // Initial update
+  updateParallax();
+}
+
+// Layer slide animations on scroll
+function initLayerAnimations() {
+  const observerOptions = {
+    threshold: 0.15,
+    rootMargin: '0px 0px -100px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('layer-active');
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.layer-slide-up').forEach(el => observer.observe(el));
+}
+
 function pillLink(label, url){
   const a = document.createElement("a");
   a.className = "social-pill";
@@ -433,6 +489,8 @@ function initEvents(){
   renderProfile();
   initEvents();
   initScrollAnimations();
+  initLayerAnimations();
+  initParallax();
   initScrollToTop();
   fetchGithubRepos();
   

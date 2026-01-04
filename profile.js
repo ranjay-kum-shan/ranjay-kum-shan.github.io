@@ -20,16 +20,17 @@ window.PROFILE = {
   ],
 
   about:
-    "I'm an Embedded Software Engineer with a passion for building efficient, reliable systems. " +
+    "I'm an Embedded Engineer with a passion for building efficient, reliable systems. " +
     "I specialize in firmware development, bare-metal programming, and creating solutions that bridge hardware and software. " +
     "With experience in C/C++, Python, and various microcontroller platforms, I enjoy tackling complex technical challenges " +
     "and optimizing system performance. I hold a patent in emergency exit route indication systems for building management and am always eager to learn new technologies and contribute to innovative projects.",
 
   highlights: [
-    "Patent holder: Continuous Airworthiness Management System (EP4246479A1)",
+    "Patent: Exit route indication via synchronized cues (EP4246479A1)",
     "Strong fundamentals in data structures, algorithms, OOP, debugging, and embedded systems testing",
     "Hands-on experience with RTOS, bare-metal programming, device drivers, and serial communication protocols (UART/I2C/SPI)",
-    "Full-stack capabilities with backend development experience in REST APIs, Node.js, Spring, and database management"
+    "Proficient with tools like Git, JTAG debuggers, oscilloscopes, logic analyzers, and Linux environments",
+    "FPGA basics and HDL exposure (Verilog/VHDL) for hardware-software co-design"
   ],
 
   skills: [
@@ -43,11 +44,11 @@ window.PROFILE = {
     },
     { 
       category: "Programming Languages", 
-      items: ["C/C++", "Python", "Java", "JavaScript", "SQL", "Assembly"] 
+      items: ["C/C++", "Python", "Verilog", "SQL", "Assembly"] 
     },
     { 
-      category: "Backend & APIs", 
-      items: ["REST APIs", "Node.js", "Spring Boot", "Express", "Authentication", "Databases"] 
+      category: "FPGA & HDL", 
+      items: ["Verilog", "VHDL", "FPGA Design", "Hardware-Software Co-Design"] 
     },
     { 
       category: "Tools & Platforms", 
@@ -61,6 +62,24 @@ window.PROFILE = {
 
   // Featured projects you want to showcase (manual). Replace with your real projects.
   featuredProjects: [
+    {
+      title: "Porting of firmware running on IMX6 processor from Linux to iMXRT1062 microcontroller running on FreeRTOS",
+      description: "Led the successful migration of embedded firmware from an iMX6 Linux-based platform to an iMXRT1062 microcontroller running FreeRTOS. This involved adapting device drivers, optimizing memory usage, and ensuring real-time performance for critical applications.",
+      tech: ["C/C++", "FreeRTOS", "iMX6", "iMXRT1062", "Device Drivers", "Embedded Linux"],
+      links: [
+        { label: "GitHub", url: "N/A" },
+        { label: "Case Study", url: "" }
+      ] 
+    },
+    {
+      title: "SIA DC09 Standard Compliant Alarm reporting System for existing security systems",
+      description: "Developed a SIA DC09 compliant alarm reporting module for integration with existing security systems. Implemented secure communication protocols, event logging, and real-time alerting features to enhance system reliability and compliance with industry standards.",
+      tech: ["Python", "Embedded Linux", "TCP/IP", "Security Protocols", "C/C++"],
+      links: [
+        { label: "GitHub", url: "N/A" },
+        { label: "Documentation", url: "" }
+      ]
+    },
     {
       title: "Building Emergency Exit Route Indication System",
       description: "Developed embedded firmware for intelligent emergency exit route indication in building management control panels. Implemented real-time monitoring of building conditions, dynamic route calculation algorithms, and visual/audio guidance systems for optimal evacuation paths during emergencies.",
@@ -89,7 +108,7 @@ window.PROFILE = {
       ]
     },
     {
-      title: "Smart Home Automation Hub",
+      title: "Smart Home Automation Hub : Frictionless Arming and Disarming",
       description: "Designed and developed a centralized smart home controller with custom PCB. Integrated multiple communication protocols (WiFi, Zigbee, BLE), implemented voice control via Alexa integration, and created mobile app for remote device management.",
       tech: ["C/C++", "Arduino", "ESP32", "Python", "React Native", "Firebase"],
       links: [
@@ -101,9 +120,9 @@ window.PROFILE = {
 
   experience: [
     {
-      role: "Embedded Software Engineer",
-      org: "Tech Company / Internship",
-      dates: "2023 — Present",
+      role: "Firmware Engineer",
+      org: "Honeywell",
+      dates: "Nov 2021 — Present",
       bullets: [
         "Developed and maintained firmware for embedded systems using C/C++, improving system stability by 25%",
         "Implemented device drivers for various peripherals and communication protocols (I2C, SPI, UART)",
@@ -112,10 +131,11 @@ window.PROFILE = {
       ]
     },
     {
-      role: "Software Developer Intern",
-      org: "Previous Company",
-      dates: "2022 — 2023",
+      role: "Software Developer",
+      org: "Waters Corporation",
+      dates: "2018 — 2021",
       bullets: [
+        "Windows Desktop Application Development using C++ and MFC for laboratory instruments",
         "Built REST APIs using Node.js and Express for IoT device management platform",
         "Developed automated testing frameworks that improved test coverage by 40%",
         "Participated in Agile sprints and contributed to full-stack development tasks",
@@ -127,7 +147,7 @@ window.PROFILE = {
   education: [
     {
       title: "Bachelor of Engineering in Electronics & Communication",
-      meta: "University Name • 2019 — 2023"
+      meta: "National Institute of Technology, Nagaland • 2014-2018"
     },
     {
       title: "Embedded Systems Certification",

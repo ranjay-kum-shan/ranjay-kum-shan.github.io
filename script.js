@@ -1,0 +1,306 @@
+/* Global window.PROFILE is loaded from profile.js */
+
+function $(id){ return document.getElementById(id); }
+
+function setTheme(theme){
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem("theme", theme);
+}
+
+function initTheme(){
+  const saved = localStorage.getItem("theme");
+  if(saved){ setTheme(saved); return; }
+  // default: match system preference
+  const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+  setTheme(prefersLight ? "light" : "dark");
+}
+
+function pillLink(label, url){
+  const a = document.createElement("a");
+  a.className = "social-pill";
+  a.textContent = label;
+  a.href = url || "#";
+  if(url && !url.startsWith("mailto:")){
+    a.target = "_blank";
+    a.rel = "noopener";
+  }
+  if(!url){ a.setAttribute("aria-disabled","true"); a.style.opacity = ".55"; a.style.pointerEvents = "none"; }
+  return a;
+}
+
+function renderProfile(){
+  const p = window.PROFILE;
+
+  document.title = `${p.name} | Portfolio`;
+
+  $("tagline").textContent = p.tagline;
+  $("statYears").textContent = p.yearsExperience;
+  $("statFocus").textContent = p.focus;
+  $("statLocation").textContent = p.location;
+
+  // Resume
+  if(p.resumeUrl){
+    $("resumeBtn").href = p.resumeUrl;
+  }else{
+    $("resumeBtn").style.opacity = ".55";
+    $("resumeBtn").style.pointerEvents = "none";
+    $("resumeBtn").title = "Add a resumeUrl in profile.js to enable.";
+  }
+
+  // Socials
+  const row = $("socialRow");
+  row.innerHTML = "";
+  (p.socials || []).forEach(s => row.appendChild(pillLink(s.label, s.url)));
+
+  // About / highlights
+  $("aboutText").textContent = p.about;
+  const hl = $("highlights");
+  hl.innerHTML = "";
+  (p.highlights || []).forEach(t => {
+    const li = document.createElement("li");
+    li.textContent = t;
+    hl.appendChild(li);
+  });
+
+  // Skills
+  const sg = $("skillsGrid");
+  sg.innerHTML = "";
+  (p.skills || []).forEach(group => {
+    const card = document.createElement("div");
+    card.className = "skill-card";
+    const h = document.createElement("h3");
+    h.className = "skill-title";
+    h.textContent = group.category;
+    const tags = document.createElement("div");
+    tags.className = "skill-tags";
+    (group.items || []).forEach(item => {
+      const t = document.createElement("span");
+      t.className = "tag";
+      t.textContent = item;
+      tags.appendChild(t);
+    });
+    card.appendChild(h);
+    card.appendChild(tags);
+    sg.appendChild(card);
+  });
+
+  // Featured projects
+  const fp = $("featuredProjects");
+  fp.innerHTML = "";
+  (p.featuredProjects || []).forEach(pr => {
+    const card = document.createElement("div");
+    card.className = "project-card";
+    const h = document.createElement("h3");
+    h.className = "project-title";
+    h.textContent = pr.title;
+
+    const d = document.createElement("p");
+    d.className = "project-desc";
+    d.textContent = pr.description;
+
+    const meta = document.createElement("div");
+    meta.className = "project-meta";
+    (pr.tech || []).forEach(t => {
+      const s = document.createElement("span");
+      s.className = "meta-pill";
+      s.textContent = t;
+      meta.appendChild(s);
+    });
+
+    const links = document.createElement("div");
+    links.className = "project-links";
+    (pr.links || []).forEach(l => {
+      if(!l.url) return;
+      const a = document.createElement("a");
+      a.className = "link";
+      a.href = l.url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.textContent = `${l.label} ↗`;
+      links.appendChild(a);
+    });
+
+    card.appendChild(h);
+    card.appendChild(d);
+    card.appendChild(meta);
+    card.appendChild(links);
+    fp.appendChild(card);
+  });
+
+  // Experience
+  const ex = $("experienceTimeline");
+  ex.innerHTML = "";
+  (p.experience || []).forEach(it => {
+    const card = document.createElement("div");
+    card.className = "timeline-item";
+
+    const top = document.createElement("div");
+    top.className = "timeline-top";
+
+    const left = document.createElement("div");
+    const role = document.createElement("h3");
+    role.className = "timeline-role";
+    role.textContent = it.role;
+    const org = document.createElement("div");
+    org.className = "timeline-org";
+    org.textContent = it.org;
+    left.appendChild(role);
+    left.appendChild(org);
+
+    const dates = document.createElement("div");
+    dates.className = "timeline-dates";
+    dates.textContent = it.dates;
+
+    top.appendChild(left);
+    top.appendChild(dates);
+
+    const ul = document.createElement("ul");
+    ul.className = "timeline-bullets";
+    (it.bullets || []).forEach(b => {
+      const li = document.createElement("li");
+      li.textContent = b;
+      ul.appendChild(li);
+    });
+
+    card.appendChild(top);
+    card.appendChild(ul);
+    ex.appendChild(card);
+  });
+
+  // Education
+  const eg = $("educationGrid");
+  eg.innerHTML = "";
+  (p.education || []).forEach(ed => {
+    const card = document.createElement("div");
+    card.className = "edu-card";
+    const t = document.createElement("h3");
+    t.className = "edu-title";
+    t.textContent = ed.title;
+    const m = document.createElement("p");
+    m.className = "edu-meta";
+    m.textContent = ed.meta;
+    card.appendChild(t);
+    card.appendChild(m);
+    eg.appendChild(card);
+  });
+
+  // Contact
+  $("contactBlurb").textContent = (p.contact && p.contact.blurb) ? p.contact.blurb : "";
+  $("emailText").textContent = p.contact.email || "your.email@example.com";
+  $("emailLink").href = p.contact.email ? `mailto:${p.contact.email}` : "#";
+
+  $("linkedinText").textContent = p.contact.linkedin ? "View profile" : "Add your LinkedIn";
+  $("linkedinLink").href = p.contact.linkedin || "#";
+  if(!p.contact.linkedin){
+    $("linkedinLink").style.opacity = ".55";
+    $("linkedinLink").style.pointerEvents = "none";
+  }
+
+  // GitHub pills
+  const user = p.githubUsername || "ranjay-kum-shan";
+  $("githubUserPill").textContent = `@${user}`;
+  $("githubProfileLink").href = `https://github.com/${user}`;
+  $("githubLink").href = `https://github.com/${user}`;
+
+  // Footer
+  $("year").textContent = new Date().getFullYear();
+  $("lastUpdated").textContent = new Date().toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" });
+}
+
+async function fetchGithubRepos(){
+  const p = window.PROFILE;
+  const user = p.githubUsername || "ranjay-kum-shan";
+  const limit = p.githubRepoCount || 6;
+
+  const grid = $("repoGrid");
+  const note = $("repoNote");
+  rememberLoading(true);
+
+  try{
+    // Public GitHub API (unauthenticated rate limits apply).
+    const url = `https://api.github.com/users/${encodeURIComponent(user)}/repos?per_page=100&sort=updated`;
+    const res = await fetch(url, { headers: { "Accept":"application/vnd.github+json" }});
+    if(!res.ok) throw new Error(`GitHub API returned ${res.status}`);
+
+    const repos = await res.json();
+
+    // Sort by stars then updated, and show the top few.
+    repos.sort((a,b) => (b.stargazers_count - a.stargazers_count) || (new Date(b.updated_at) - new Date(a.updated_at)));
+    const top = repos.slice(0, limit);
+
+    grid.innerHTML = "";
+    if(top.length === 0){
+      note.textContent = "No public repos found yet. Make a repository public and click Refresh.";
+      return;
+    }
+    note.textContent = "Showing public repositories via GitHub API.";
+
+    top.forEach(r => {
+      const card = document.createElement("div");
+      card.className = "repo-card";
+
+      const topRow = document.createElement("div");
+      topRow.className = "repo-top";
+
+      const name = document.createElement("a");
+      name.className = "repo-name";
+      name.href = r.html_url;
+      name.target = "_blank";
+      name.rel = "noopener";
+      name.textContent = r.name;
+
+      const badge = document.createElement("span");
+      badge.className = "meta-pill";
+      badge.textContent = r.language || "—";
+
+      topRow.appendChild(name);
+      topRow.appendChild(badge);
+
+      const desc = document.createElement("p");
+      desc.className = "repo-desc";
+      desc.textContent = r.description || "No description yet.";
+
+      const bottom = document.createElement("div");
+      bottom.className = "repo-bottom";
+      bottom.innerHTML = `
+        <span>★ ${r.stargazers_count}</span>
+        <span>⑂ ${r.forks_count}</span>
+        <span>Updated ${new Date(r.updated_at).toLocaleDateString()}</span>
+      `;
+
+      card.appendChild(topRow);
+      card.appendChild(desc);
+      card.appendChild(bottom);
+
+      grid.appendChild(card);
+    });
+  }catch(err){
+    note.textContent = "Could not load GitHub repos right now (rate limit or network). Try again later.";
+    console.error(err);
+  }finally{
+    rememberLoading(false);
+  }
+}
+
+function rememberLoading(isLoading){
+  const btn = $("refreshRepos");
+  if(!btn) return;
+  btn.disabled = isLoading;
+  btn.textContent = isLoading ? "Refreshing…" : "Refresh";
+}
+
+function initEvents(){
+  $("themeToggle").addEventListener("click", () => {
+    const current = document.documentElement.dataset.theme || "dark";
+    setTheme(current === "dark" ? "light" : "dark");
+  });
+
+  $("refreshRepos").addEventListener("click", fetchGithubRepos);
+}
+
+(function init(){
+  initTheme();
+  renderProfile();
+  initEvents();
+  fetchGithubRepos();
+})();

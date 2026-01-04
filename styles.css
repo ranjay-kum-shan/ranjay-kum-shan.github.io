@@ -371,15 +371,16 @@ code{
 
 /* ====== Cards / Sections ====== */
 .section{
-  padding: 3rem 0;
+  padding: 4rem 0;
   position: relative;
+  margin: 0;
 }
 .section h2{
-  margin: 0 0 1rem;
+  margin: 0 0 1.5rem;
   letter-spacing:-0.015em;
   transition: transform 0.3s ease;
 }
-.section-lead{margin: -.35rem 0 1.25rem; color: var(--muted)}
+.section-lead{margin: 0 0 1.5rem; color: var(--muted)}
 .card{
   background: var(--surface);
   border:1px solid var(--line);
@@ -555,6 +556,7 @@ code{
 .timeline{
   display:grid;
   gap: 1rem;
+  margin-top: 1rem;
 }
 .timeline-item{
   padding: 1.1rem;
@@ -596,6 +598,10 @@ code{
 }
 .edu-title{margin:0; font-weight:800}
 .edu-meta{margin:.25rem 0 0; color: var(--muted); font-weight:700}
+
+.grid.edu-grid{
+  margin-top: 1rem;
+}
 
 /* ====== Patents ====== */
 .patent-card{

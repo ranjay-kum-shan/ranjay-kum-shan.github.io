@@ -142,6 +142,65 @@ code{
   color: var(--accent);
 }
 
+/* ====== Parallax & Layer Effects ====== */
+.parallax-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.parallax-bg {
+  position: absolute;
+  top: -50px;
+  left: 0;
+  width: 100%;
+  height: calc(100% + 100px);
+  background: radial-gradient(circle at 30% 50%, color-mix(in oklab, var(--accent) 15%, transparent), transparent 70%);
+  z-index: -1;
+  will-change: transform;
+}
+
+.parallax-layer {
+  will-change: transform;
+  transition: transform 0.1s ease-out;
+}
+
+.layer-slide-up {
+  opacity: 0;
+  transform: translateY(60px) scale(0.95);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.layer-slide-up.layer-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Depth shadow effect for layers */
+.layer-slide-up.layer-active .card,
+.layer-slide-up.layer-active .skill-card,
+.layer-slide-up.layer-active .project-card,
+.layer-slide-up.layer-active .timeline-item,
+.layer-slide-up.layer-active .edu-card {
+  animation: layerFloat 0.8s ease-out forwards;
+}
+
+@keyframes layerFloat {
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+    box-shadow: var(--shadow);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+    box-shadow: var(--shadow-lg);
+  }
+}
+
 /* ====== Header ====== */
 .site-header{
   position: sticky;
@@ -228,6 +287,8 @@ code{
   background:
     radial-gradient(900px 500px at 20% -10%, color-mix(in oklab, var(--accent) 35%, transparent), transparent 60%),
     radial-gradient(700px 450px at 95% 0%, color-mix(in oklab, var(--accent-2) 25%, transparent), transparent 60%);
+  perspective: 1000px;
+  transform-style: preserve-3d;
 }
 .hero-inner{
   display:grid;
@@ -309,10 +370,14 @@ code{
 }
 
 /* ====== Cards / Sections ====== */
-.section{padding: 3rem 0}
+.section{
+  padding: 3rem 0;
+  position: relative;
+}
 .section h2{
   margin: 0 0 1rem;
   letter-spacing:-0.015em;
+  transition: transform 0.3s ease;
 }
 .section-lead{margin: -.35rem 0 1.25rem; color: var(--muted)}
 .card{

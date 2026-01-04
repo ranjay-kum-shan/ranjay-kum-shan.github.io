@@ -4,13 +4,13 @@
 window.PROFILE = {
   name: "Ranjay Kumar",
   tagline: "Embedded Software Engineer • Firmware Developer • Problem Solver",
-  yearsExperience: "0–8",
-  focus: "Embedded Systems & IoT",
+  yearsExperience: "8+",
+  focus: "Embedded Systems, Firmware & IoT",
   location: "United Kingdom",
 
   // Add your resume PDF (optional). Put it in /assets and update the path.
   // Example: resumeUrl: "assets/Ranjay_Kumar_Resume.pdf",
-  resumeUrl: "assets/Ranjay_Kumar_Resume.pdf",
+  resumeUrl: "assets/Ranjay_Kumar_Resume_.pdf",
 
   // Social links shown in the hero.
   socials: [

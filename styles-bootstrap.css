@@ -50,14 +50,12 @@
   --bs-btn-hover-border-color: rgba(124,58,237,.55);
 }
 
-html{scroll-behavior:smooth; scroll-padding-top: 84px; scroll-snap-type: y proximity;}
+html{scroll-behavior:smooth; scroll-padding-top: 84px;}
 body{
   font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* Dramatic section-by-section scroll ("smooth slide") */
 main > section{
-  scroll-snap-align: start;
   scroll-margin-top: 84px;
 }
 

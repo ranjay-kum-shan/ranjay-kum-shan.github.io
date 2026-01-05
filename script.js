@@ -606,13 +606,37 @@ function renderProfile(){
       if(isBootstrapUI()){
         card.className = "col-lg-6";
         const inner = document.createElement("div");
-        inner.className = "card h-100 shadow-sm";
+        inner.className = "card h-100 shadow-sm patent-card-bs";
         const body = document.createElement("div");
         body.className = "card-body";
 
+        const statusText = (patent.status || "").toString().trim();
+        const statusLower = statusText.toLowerCase();
+        let statusClass = "text-bg-secondary";
+        if(statusLower.includes('published') || statusLower.includes('granted') || statusLower.includes('issued')){
+          statusClass = "text-bg-success";
+          inner.classList.add('status-success');
+        }else if(statusLower.includes('pending') || statusLower.includes('filed') || statusLower.includes('provisional')){
+          statusClass = "text-bg-warning";
+          inner.classList.add('status-warning');
+        }else if(statusLower.includes('rejected') || statusLower.includes('abandoned') || statusLower.includes('expired')){
+          statusClass = "text-bg-danger";
+          inner.classList.add('status-danger');
+        }
+
+        const header = document.createElement('div');
+        header.className = 'd-flex justify-content-between align-items-start gap-2 mb-2';
+
         const title = document.createElement("h3");
-        title.className = "h6 fw-bold mb-2";
+        title.className = "h6 fw-bold mb-0";
         title.textContent = patent.title;
+
+        const status = document.createElement('span');
+        status.className = `badge rounded-pill ${statusClass} patent-status-bs`;
+        status.textContent = statusText || '—';
+
+        header.appendChild(title);
+        header.appendChild(status);
 
         const meta = document.createElement("div");
         meta.className = "d-flex flex-wrap gap-2 text-secondary small mb-2";
@@ -620,7 +644,6 @@ function renderProfile(){
           <span class="badge text-bg-secondary">${patent.number}</span>
           <span class="badge text-bg-secondary">${patent.office}</span>
           <span class="badge text-bg-secondary">${patent.date}</span>
-          <span class="badge text-bg-secondary">${patent.status}</span>
         `;
 
         const inventors = document.createElement("p");
@@ -638,7 +661,7 @@ function renderProfile(){
         link.rel = "noopener";
         link.textContent = "View Patent ↗";
 
-        body.appendChild(title);
+        body.appendChild(header);
         body.appendChild(meta);
         body.appendChild(inventors);
         body.appendChild(desc);

@@ -4,7 +4,7 @@
 window.PROFILE = {
   name: "Ranjay Kumar",
   tagline: "Embedded Software Engineer • Firmware Developer • Problem Solver",
-  yearsExperience: "8+",
+  yearsExperience: "6+",
   focus: "Embedded Systems, Firmware & IoT",
   location: "United Kingdom",
 

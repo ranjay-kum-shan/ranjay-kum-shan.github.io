@@ -10,7 +10,7 @@ window.PROFILE = {
 
   // Add your resume PDF (optional). Put it in /assets and update the path.
   // Example: resumeUrl: "assets/Ranjay_Kumar_Resume.pdf",
-  resumeUrl: "assets/Ranjay_Kumar_Resume_.pdf",
+  resumeUrl: "assets/Ranjay_Kumar_Resume.pdf",
 
   // Social links shown in the hero.
   socials: [

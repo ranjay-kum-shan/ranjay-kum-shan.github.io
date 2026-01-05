@@ -22,7 +22,7 @@ function initTheme(){
 }
 
 // Typing animation for hero subtitle
-function typeText(text, elementId, speed = 80) {
+function typeText(text, elementId, speed = 55) {
   const element = $(elementId);
   if (!element) return;
   
@@ -37,7 +37,7 @@ function typeText(text, elementId, speed = 80) {
     }
   }
   
-  setTimeout(type, 500); // Delay before starting
+  setTimeout(type, 200); // Delay before starting
 }
 
 // Intersection Observer for fade-in animations
@@ -200,12 +200,12 @@ function initBootstrapReveals(){
 
   // Sections
   Array.from(document.querySelectorAll('main section')).forEach((sec, i) => {
-    applyBootstrapReveal(sec, i * 90);
+    applyBootstrapReveal(sec, i * 60);
   });
 
   // Hero columns (slightly quicker)
   document.querySelectorAll('.hero-bs .col-lg-7, .hero-bs .col-lg-5').forEach((el, i) => {
-    applyBootstrapReveal(el, i * 140);
+    applyBootstrapReveal(el, i * 100);
   });
 
   // Grid items (skills/projects/education/patents/repos)
@@ -218,7 +218,7 @@ function initBootstrapReveals(){
     '#experienceTimeline > div'
   ];
   document.querySelectorAll(gridItemSelectors.join(',')).forEach((el, i) => {
-    applyBootstrapReveal(el, Math.min(120 + i * 70, 520));
+    applyBootstrapReveal(el, Math.min(80 + i * 50, 380));
   });
 }
 
@@ -254,7 +254,7 @@ function initMobileNav(){
     window.setTimeout(() => {
       nav.hidden = true;
       overlay.hidden = true;
-    }, 250);
+    }, 180);
   }
 
   toggle.addEventListener('click', () => {
@@ -297,7 +297,7 @@ function renderProfile(){
 
   // Start typing animation for tagline
   if (p.tagline) {
-    typeText(p.tagline, 'typingText', 60);
+    typeText(p.tagline, 'typingText', 45);
   }
 
   $("statYears").textContent = p.yearsExperience;
@@ -319,7 +319,7 @@ function renderProfile(){
   (p.socials || []).forEach((s, i) => {
     const el = pillLink(s.label, s.url);
     row.appendChild(el);
-    applyBootstrapReveal(el, 140 + i * 90);
+    applyBootstrapReveal(el, 90 + i * 60);
   });
 
   // About / highlights
@@ -362,7 +362,7 @@ function renderProfile(){
       inner.appendChild(body);
       card.appendChild(inner);
       sg.appendChild(card);
-      applyBootstrapReveal(card, 120 + i * 80);
+      applyBootstrapReveal(card, 90 + i * 60);
       return;
     }
 
@@ -432,7 +432,7 @@ function renderProfile(){
       inner.appendChild(body);
       card.appendChild(inner);
       fp.appendChild(card);
-      applyBootstrapReveal(card, 140 + i * 90);
+      applyBootstrapReveal(card, 90 + i * 60);
       return;
     }
 
@@ -517,7 +517,7 @@ function renderProfile(){
       body.appendChild(ul);
       wrap.appendChild(body);
       ex.appendChild(wrap);
-      applyBootstrapReveal(wrap, 140 + i * 90);
+      applyBootstrapReveal(wrap, 90 + i * 60);
       return;
     }
 

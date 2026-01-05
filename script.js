@@ -149,6 +149,62 @@ function initLayerAnimations() {
   document.querySelectorAll('.layer-slide-up').forEach(el => observer.observe(el));
 }
 
+function prefersReducedMotion(){
+  return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function initMobileNav(){
+  const nav = $("mobileNav");
+  const overlay = $("mobileNavOverlay");
+  const toggle = $("navToggle");
+  const closeBtn = $("navClose");
+
+  if(!nav || !overlay || !toggle || !closeBtn) return;
+
+  function openNav(){
+    nav.hidden = false;
+    overlay.hidden = false;
+    // next frame so transitions apply
+    requestAnimationFrame(() => {
+      nav.classList.add('open');
+      overlay.classList.add('open');
+    });
+    document.body.classList.add('nav-open');
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeNav(){
+    nav.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.classList.remove('nav-open');
+    toggle.setAttribute('aria-expanded', 'false');
+    // wait for transition end
+    window.setTimeout(() => {
+      nav.hidden = true;
+      overlay.hidden = true;
+    }, 250);
+  }
+
+  toggle.addEventListener('click', () => {
+    const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+    if(isOpen) closeNav();
+    else openNav();
+  });
+
+  closeBtn.addEventListener('click', closeNav);
+  overlay.addEventListener('click', closeNav);
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key !== 'Escape') return;
+    const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+    if(isOpen) closeNav();
+  });
+
+  nav.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', () => closeNav());
+  });
+}
+
 function pillLink(label, url){
   const a = document.createElement("a");
   a.className = "social-pill";
@@ -537,6 +593,8 @@ function initEvents(){
       }
     });
   });
+
+  initMobileNav();
 }
 
 (function init(){
@@ -545,7 +603,9 @@ function initEvents(){
   initEvents();
   initScrollAnimations();
   initLayerAnimations();
-  initParallax();
+  if(!prefersReducedMotion()){
+    initParallax();
+  }
   initScrollToTop();
   fetchGithubRepos();
   

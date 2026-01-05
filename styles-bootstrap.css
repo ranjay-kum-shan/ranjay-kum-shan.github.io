@@ -92,7 +92,7 @@ body{
 
 /* Typing cursor */
 @keyframes blink{0%,49%{opacity:1} 50%,100%{opacity:0}}
-.typing-cursor{animation: blink 1s infinite; font-weight: 300;}
+.typing-cursor{animation: blink .8s infinite; font-weight: 300;}
 
 /* Social pills */
 .social-pill{
@@ -105,7 +105,7 @@ body{
   border: 1px solid rgba(255,255,255,.15);
 }
 [data-bs-theme="light"] .social-pill{border-color: rgba(16,24,40,.15)}
-.social-pill{transition: transform .18s ease, border-color .18s ease, background-color .18s ease;}
+.social-pill{transition: transform .12s ease, border-color .12s ease, background-color .12s ease;}
 .social-pill:hover{transform: translateY(-2px); border-color: rgba(124,58,237,.55)}
 
 /* Scroll to top */
@@ -124,7 +124,7 @@ body{
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity .2s ease, transform .2s ease;
+  transition: opacity .15s ease, transform .15s ease;
   z-index: 1060;
 }
 [data-bs-theme="light"] .scroll-to-top{
@@ -135,7 +135,7 @@ body{
 .scroll-to-top.visible{opacity: 1; pointer-events: auto; transform: translateY(0)}
 
 /* Small hover polish */
-.card{transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;}
+.card{transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;}
 .card:hover{transform: translateY(-4px)}
 [data-bs-theme="dark"] .card{box-shadow: 0 16px 46px rgba(0,0,0,.35)}
 
@@ -183,7 +183,7 @@ body{
 .reveal{
   opacity: 0;
   transform: translate3d(0, 18px, 0);
-  transition: opacity .6s ease, transform .6s ease;
+  transition: opacity .42s ease, transform .42s ease;
   transition-delay: var(--d, 0ms);
   will-change: opacity, transform;
 }
@@ -191,12 +191,12 @@ body{
 .reveal.visible{
   opacity: 1;
   transform: translate3d(0, 0, 0);
-  animation: riseIn .7s cubic-bezier(.2,.8,.2,1) both;
+  animation: riseIn .5s cubic-bezier(.2,.8,.2,1) both;
   animation-delay: var(--d, 0ms);
 }
 
 /* Hero subtle entrance */
-.hero-bs .reveal.visible{animation-duration: .85s}
+.hero-bs .reveal.visible{animation-duration: .65s}
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce){

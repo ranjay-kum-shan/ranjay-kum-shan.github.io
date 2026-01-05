@@ -200,12 +200,12 @@ function initBootstrapReveals(){
 
   // Sections
   Array.from(document.querySelectorAll('main section')).forEach((sec, i) => {
-    applyBootstrapReveal(sec, i * 90);
+    applyBootstrapReveal(sec, i * 55);
   });
 
   // Hero columns (slightly quicker)
   document.querySelectorAll('.hero-bs .col-lg-7, .hero-bs .col-lg-5').forEach((el, i) => {
-    applyBootstrapReveal(el, i * 140);
+    applyBootstrapReveal(el, i * 90);
   });
 
   // Grid items (skills/projects/education/patents/repos)
@@ -218,7 +218,7 @@ function initBootstrapReveals(){
     '#experienceTimeline > div'
   ];
   document.querySelectorAll(gridItemSelectors.join(',')).forEach((el, i) => {
-    applyBootstrapReveal(el, Math.min(120 + i * 70, 520));
+    applyBootstrapReveal(el, Math.min(90 + i * 45, 320));
   });
 }
 
@@ -319,7 +319,7 @@ function renderProfile(){
   (p.socials || []).forEach((s, i) => {
     const el = pillLink(s.label, s.url);
     row.appendChild(el);
-    applyBootstrapReveal(el, 140 + i * 90);
+    applyBootstrapReveal(el, 90 + i * 60);
   });
 
   // About / highlights
@@ -362,7 +362,7 @@ function renderProfile(){
       inner.appendChild(body);
       card.appendChild(inner);
       sg.appendChild(card);
-      applyBootstrapReveal(card, 120 + i * 80);
+      applyBootstrapReveal(card, 90 + i * 55);
       return;
     }
 
@@ -432,7 +432,7 @@ function renderProfile(){
       inner.appendChild(body);
       card.appendChild(inner);
       fp.appendChild(card);
-      applyBootstrapReveal(card, 140 + i * 90);
+      applyBootstrapReveal(card, 110 + i * 60);
       return;
     }
 
@@ -517,7 +517,7 @@ function renderProfile(){
       body.appendChild(ul);
       wrap.appendChild(body);
       ex.appendChild(wrap);
-      applyBootstrapReveal(wrap, 140 + i * 90);
+      applyBootstrapReveal(wrap, 110 + i * 65);
       return;
     }
 
@@ -581,7 +581,7 @@ function renderProfile(){
       inner.appendChild(body);
       card.appendChild(inner);
       eg.appendChild(card);
-      applyBootstrapReveal(card, 120 + i * 90);
+      applyBootstrapReveal(card, 90 + i * 65);
       return;
     }
 
@@ -669,7 +669,7 @@ function renderProfile(){
         inner.appendChild(body);
         card.appendChild(inner);
         pg.appendChild(card);
-        applyBootstrapReveal(card, 140 + i * 110);
+        applyBootstrapReveal(card, 110 + i * 70);
         return;
       }
 

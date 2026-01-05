@@ -61,6 +61,9 @@ function initScrollAnimations() {
   
   // Observe stagger children
   document.querySelectorAll('.stagger-children').forEach(el => observer.observe(el));
+
+  // Bootstrap UI: richer reveal animations
+  initBootstrapReveals();
 }
 
 // Scroll progress indicator
@@ -159,6 +162,66 @@ function prefersReducedMotion(){
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+let bootstrapRevealObserver = null;
+
+function getBootstrapRevealObserver(){
+  if(bootstrapRevealObserver) return bootstrapRevealObserver;
+
+  const observerOptions = {
+    threshold: 0.12,
+    rootMargin: '0px 0px -80px 0px'
+  };
+
+  bootstrapRevealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('visible');
+      bootstrapRevealObserver.unobserve(entry.target);
+    });
+  }, observerOptions);
+
+  return bootstrapRevealObserver;
+}
+
+function applyBootstrapReveal(el, delayMs = 0){
+  if(!el) return;
+  if(!isBootstrapUI()) return;
+  if(prefersReducedMotion()) return;
+  if(el.classList.contains('visible')) return;
+
+  el.classList.add('reveal');
+  el.style.setProperty('--d', `${delayMs}ms`);
+  getBootstrapRevealObserver().observe(el);
+}
+
+function initBootstrapReveals(){
+  if(!isBootstrapUI()) return;
+  if(prefersReducedMotion()) return;
+
+  // Sections
+  Array.from(document.querySelectorAll('main section')).forEach((sec, i) => {
+    applyBootstrapReveal(sec, i * 90);
+  });
+
+  // Hero columns (slightly quicker)
+  document.querySelectorAll('.hero-bs .col-lg-7, .hero-bs .col-lg-5').forEach((el, i) => {
+    applyBootstrapReveal(el, i * 140);
+  });
+
+  // Grid items (skills/projects/education/patents/repos)
+  const gridItemSelectors = [
+    '#skillsGrid > div',
+    '#featuredProjects > div',
+    '#educationGrid > div',
+    '#patentsGrid > div',
+    '#repoGrid > div',
+    '#experienceTimeline > div'
+  ];
+  document.querySelectorAll(gridItemSelectors.join(',')).forEach((el, i) => {
+    applyBootstrapReveal(el, Math.min(120 + i * 70, 520));
+  });
+}
+
 function initMobileNav(){
   // Bootstrap version uses navbar collapse; no custom mobile nav.
   if(isBootstrapUI()) return;
@@ -253,7 +316,11 @@ function renderProfile(){
   // Socials
   const row = $("socialRow");
   row.innerHTML = "";
-  (p.socials || []).forEach(s => row.appendChild(pillLink(s.label, s.url)));
+  (p.socials || []).forEach((s, i) => {
+    const el = pillLink(s.label, s.url);
+    row.appendChild(el);
+    applyBootstrapReveal(el, 140 + i * 90);
+  });
 
   // About / highlights
   $("aboutText").textContent = p.about;
@@ -268,7 +335,7 @@ function renderProfile(){
   // Skills
   const sg = $("skillsGrid");
   sg.innerHTML = "";
-  (p.skills || []).forEach(group => {
+  (p.skills || []).forEach((group, i) => {
     const card = document.createElement("div");
     if(isBootstrapUI()){
       card.className = "col-md-6 col-lg-4";
@@ -295,6 +362,7 @@ function renderProfile(){
       inner.appendChild(body);
       card.appendChild(inner);
       sg.appendChild(card);
+      applyBootstrapReveal(card, 120 + i * 80);
       return;
     }
 
@@ -318,7 +386,7 @@ function renderProfile(){
   // Featured projects
   const fp = $("featuredProjects");
   fp.innerHTML = "";
-  (p.featuredProjects || []).forEach(pr => {
+  (p.featuredProjects || []).forEach((pr, i) => {
     const card = document.createElement("div");
     if(isBootstrapUI()){
       card.className = "col-md-6 col-lg-4";
@@ -364,6 +432,7 @@ function renderProfile(){
       inner.appendChild(body);
       card.appendChild(inner);
       fp.appendChild(card);
+      applyBootstrapReveal(card, 140 + i * 90);
       return;
     }
 
@@ -408,9 +477,52 @@ function renderProfile(){
   // Experience
   const ex = $("experienceTimeline");
   ex.innerHTML = "";
-  (p.experience || []).forEach(it => {
+  (p.experience || []).forEach((it, i) => {
+    if(isBootstrapUI()){
+      const wrap = document.createElement('div');
+      wrap.className = 'card shadow-sm';
+
+      const body = document.createElement('div');
+      body.className = 'card-body';
+
+      const head = document.createElement('div');
+      head.className = 'd-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-2';
+
+      const left = document.createElement('div');
+      const role = document.createElement('div');
+      role.className = 'fw-bold';
+      role.textContent = it.role;
+      const org = document.createElement('div');
+      org.className = 'text-secondary';
+      org.textContent = it.org;
+      left.appendChild(role);
+      left.appendChild(org);
+
+      const dates = document.createElement('div');
+      dates.className = 'text-secondary small';
+      dates.textContent = it.dates;
+
+      head.appendChild(left);
+      head.appendChild(dates);
+
+      const ul = document.createElement('ul');
+      ul.className = 'text-secondary mb-0 ps-3';
+      (it.bullets || []).forEach(b => {
+        const li = document.createElement('li');
+        li.textContent = b;
+        ul.appendChild(li);
+      });
+
+      body.appendChild(head);
+      body.appendChild(ul);
+      wrap.appendChild(body);
+      ex.appendChild(wrap);
+      applyBootstrapReveal(wrap, 140 + i * 90);
+      return;
+    }
+
     const card = document.createElement("div");
-    card.className = isBootstrapUI() ? "card shadow-sm" : "timeline-item";
+    card.className = "timeline-item";
 
     const top = document.createElement("div");
     top.className = "timeline-top";
@@ -448,7 +560,7 @@ function renderProfile(){
   // Education
   const eg = $("educationGrid");
   eg.innerHTML = "";
-  (p.education || []).forEach(ed => {
+  (p.education || []).forEach((ed, i) => {
     const card = document.createElement("div");
     if(isBootstrapUI()){
       card.className = "col-md-6";
@@ -469,6 +581,7 @@ function renderProfile(){
       inner.appendChild(body);
       card.appendChild(inner);
       eg.appendChild(card);
+      applyBootstrapReveal(card, 120 + i * 90);
       return;
     }
 
@@ -488,7 +601,7 @@ function renderProfile(){
   const pg = $("patentsGrid");
   if (pg && p.patents) {
     pg.innerHTML = "";
-    (p.patents || []).forEach(patent => {
+    (p.patents || []).forEach((patent, i) => {
       const card = document.createElement("div");
       if(isBootstrapUI()){
         card.className = "col-lg-6";
@@ -533,6 +646,7 @@ function renderProfile(){
         inner.appendChild(body);
         card.appendChild(inner);
         pg.appendChild(card);
+        applyBootstrapReveal(card, 140 + i * 110);
         return;
       }
 
@@ -606,6 +720,9 @@ function renderProfile(){
   // Footer
   $("year").textContent = new Date().getFullYear();
   $("lastUpdated").textContent = new Date().toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" });
+
+  // Bootstrap UI: ensure newly-rendered items are observed for reveals
+  initBootstrapReveals();
 }
 
 async function fetchGithubRepos(){
@@ -709,6 +826,8 @@ async function fetchGithubRepos(){
         card.appendChild(inner);
         grid.appendChild(card);
 
+        applyBootstrapReveal(card, 140 + index * 90);
+
         setTimeout(() => {
           card.style.transition = "opacity 0.4s ease, transform 0.4s ease";
           card.style.opacity = "1";
@@ -764,6 +883,9 @@ async function fetchGithubRepos(){
         card.style.transform = "translateY(0)";
       }, index * 100);
     });
+
+    // Bootstrap UI: observe any new repo cards
+    initBootstrapReveals();
   }catch(err){
     grid.innerHTML = "";
     note.textContent = "Could not load GitHub repos right now (rate limit or network issue). Try again later.";

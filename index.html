@@ -39,11 +39,36 @@
         <a href="#contact" class="nav-cta">Contact</a>
       </nav>
 
+      <button id="navToggle" class="icon-btn nav-toggle" aria-label="Open menu" aria-controls="mobileNav" aria-expanded="false" title="Menu">
+        <span class="icon" aria-hidden="true">☰</span>
+      </button>
+
       <button id="themeToggle" class="icon-btn" aria-label="Toggle theme" title="Toggle theme">
         <span class="icon theme-icon" aria-hidden="true">◐</span>
       </button>
     </div>
   </header>
+
+  <!-- Mobile Nav (shown on small screens) -->
+  <div id="mobileNavOverlay" class="mobile-nav-overlay" hidden></div>
+  <aside id="mobileNav" class="mobile-nav" hidden aria-label="Mobile navigation">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-title">Menu</span>
+      <button id="navClose" class="icon-btn" aria-label="Close menu" title="Close">
+        <span class="icon" aria-hidden="true">✕</span>
+      </button>
+    </div>
+
+    <nav class="mobile-nav-links" aria-label="Mobile">
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#education">Education</a>
+      <a href="#patents">Patents</a>
+      <a href="#contact" class="nav-cta">Contact</a>
+    </nav>
+  </aside>
 
   <!-- Scroll Progress Indicator -->
   <div id="scrollProgress" class="scroll-progress" aria-hidden="true"></div>

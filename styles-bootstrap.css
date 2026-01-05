@@ -50,9 +50,16 @@
   --bs-btn-hover-border-color: rgba(124,58,237,.55);
 }
 
-html{scroll-behavior:smooth; scroll-padding-top: 84px;}
+html{scroll-behavior:smooth; scroll-padding-top: 84px; scroll-snap-type: y mandatory;}
 body{
   font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Dramatic section-by-section scroll ("smooth slide") */
+main > section{
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  scroll-margin-top: 84px;
 }
 
 /* Subtle frosted header background helper */
@@ -183,7 +190,7 @@ body{
 .reveal{
   opacity: 0;
   transform: translate3d(0, 18px, 0);
-  transition: opacity .6s ease, transform .6s ease;
+  transition: opacity .35s ease, transform .35s ease;
   transition-delay: var(--d, 0ms);
   will-change: opacity, transform;
 }
@@ -191,16 +198,16 @@ body{
 .reveal.visible{
   opacity: 1;
   transform: translate3d(0, 0, 0);
-  animation: riseIn .7s cubic-bezier(.2,.8,.2,1) both;
+  animation: riseIn .45s cubic-bezier(.2,.8,.2,1) both;
   animation-delay: var(--d, 0ms);
 }
 
 /* Hero subtle entrance */
-.hero-bs .reveal.visible{animation-duration: .85s}
+.hero-bs .reveal.visible{animation-duration: .55s}
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce){
-  html{scroll-behavior:auto}
+  html{scroll-behavior:auto; scroll-snap-type: none;}
   *, *::before, *::after{
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;

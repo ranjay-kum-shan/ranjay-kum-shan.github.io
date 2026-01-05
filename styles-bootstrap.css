@@ -3,6 +3,51 @@
 :root{
   --hero-grad-1: rgba(124,58,237,.28);
   --hero-grad-2: rgba(34,197,94,.18);
+  --accent: #7c3aed;
+  --accent-2: #22c55e;
+}
+
+/* Richer Bootstrap dark theme (less dull) */
+[data-bs-theme="dark"]{
+  --bs-body-bg: #0b0c10;
+  --bs-body-bg-rgb: 11,12,16;
+  --bs-body-color: #f3f4f6;
+  --bs-body-color-rgb: 243,244,246;
+
+  --bs-secondary-color: rgba(243,244,246,.66);
+  --bs-secondary-color-rgb: 243,244,246;
+
+  --bs-tertiary-bg: #12141a;
+  --bs-tertiary-bg-rgb: 18,20,26;
+  --bs-secondary-bg: #10131a;
+  --bs-secondary-bg-rgb: 16,19,26;
+
+  --bs-border-color: #232838;
+  --bs-border-color-translucent: rgba(35,40,56,.65);
+
+  --bs-card-bg: #12141a;
+  --bs-card-cap-bg: rgba(18,20,26,.6);
+  --bs-box-shadow: 0 14px 40px rgba(0,0,0,.35);
+
+  --bs-link-color: rgba(243,244,246,.9);
+  --bs-link-hover-color: #ffffff;
+
+  --bs-primary: var(--accent);
+  --bs-primary-rgb: 124,58,237;
+}
+
+[data-bs-theme="dark"] .btn-primary{
+  --bs-btn-bg: var(--accent);
+  --bs-btn-border-color: rgba(124,58,237,.65);
+  --bs-btn-hover-bg: rgba(124,58,237,.92);
+  --bs-btn-hover-border-color: rgba(124,58,237,.9);
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary{
+  --bs-btn-color: rgba(243,244,246,.8);
+  --bs-btn-border-color: rgba(35,40,56,.95);
+  --bs-btn-hover-bg: rgba(18,20,26,.9);
+  --bs-btn-hover-border-color: rgba(124,58,237,.55);
 }
 
 html{scroll-behavior:smooth; scroll-padding-top: 84px;}
@@ -32,14 +77,14 @@ body{
 }
 
 .hero-title{
-  background: linear-gradient(90deg, rgba(255,255,255,.96), rgba(255,255,255,.84));
+  background: linear-gradient(90deg, rgba(255,255,255,.98), rgba(124,58,237,.92), rgba(34,197,94,.78));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 [data-bs-theme="light"] .hero-title{
-  background: linear-gradient(90deg, rgba(16,24,40,.95), rgba(16,24,40,.8));
+  background: linear-gradient(90deg, rgba(16,24,40,.95), rgba(124,58,237,.95), rgba(16,24,40,.8));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -60,7 +105,8 @@ body{
   border: 1px solid rgba(255,255,255,.15);
 }
 [data-bs-theme="light"] .social-pill{border-color: rgba(16,24,40,.15)}
-.social-pill:hover{transform: translateY(-1px)}
+.social-pill{transition: transform .18s ease, border-color .18s ease, background-color .18s ease;}
+.social-pill:hover{transform: translateY(-2px); border-color: rgba(124,58,237,.55)}
 
 /* Scroll to top */
 .scroll-to-top{
@@ -89,8 +135,33 @@ body{
 .scroll-to-top.visible{opacity: 1; pointer-events: auto; transform: translateY(0)}
 
 /* Small hover polish */
-.card{transition: transform .2s ease, box-shadow .2s ease;}
-.card:hover{transform: translateY(-2px)}
+.card{transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;}
+.card:hover{transform: translateY(-4px)}
+[data-bs-theme="dark"] .card{box-shadow: 0 16px 46px rgba(0,0,0,.35)}
+
+/* ====== Reveal / Stagger Animations (Bootstrap UI) ====== */
+@keyframes riseIn{
+  from{opacity: 0; transform: translate3d(0, 18px, 0) scale(.985); filter: blur(3px)}
+  to{opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0)}
+}
+
+.reveal{
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition: opacity .6s ease, transform .6s ease;
+  transition-delay: var(--d, 0ms);
+  will-change: opacity, transform;
+}
+
+.reveal.visible{
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  animation: riseIn .7s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+/* Hero subtle entrance */
+.hero-bs .reveal.visible{animation-duration: .85s}
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce){

@@ -280,6 +280,9 @@ code{
   transform: rotate(180deg);
 }
 
+/* Mobile nav toggle (hamburger) */
+.nav-toggle{display:none}
+
 /* ====== Hero ====== */
 .hero{
   padding: 4.2rem 0 2.5rem;
@@ -306,6 +309,13 @@ code{
   font-size: clamp(2.4rem, 4.5vw, 3.6rem);
   line-height:1.1;
   letter-spacing:-0.02em;
+  background: linear-gradient(90deg,
+    color-mix(in oklab, var(--text) 92%, var(--accent)),
+    color-mix(in oklab, var(--text) 88%, var(--accent-2))
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .hero-subtitle{
   margin:.5rem 0 1.3rem;
@@ -414,10 +424,99 @@ code{
 @media (max-width: 960px){
   .hero-inner{grid-template-columns:1fr}
   .nav{display:none}
+  .nav-toggle{display:inline-flex}
   .grid{grid-template-columns:1fr 1fr}
 }
 @media (max-width: 640px){
   .grid{grid-template-columns:1fr}
+}
+
+/* ====== Mobile Nav (off-canvas) ====== */
+.mobile-nav-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(6px);
+  z-index: 60;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease;
+}
+
+.mobile-nav{
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: min(360px, calc(100vw - 3.5rem));
+  background: color-mix(in oklab, var(--surface) 92%, transparent);
+  border-left: 1px solid var(--line);
+  z-index: 61;
+  transform: translateX(12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .22s ease, opacity .22s ease;
+  box-shadow: var(--shadow-lg);
+}
+
+.mobile-nav.open{
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-nav-overlay.open{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-nav-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.mobile-nav-title{font-weight:800; letter-spacing:-0.01em}
+
+.mobile-nav-links{
+  display:flex;
+  flex-direction:column;
+  padding: .6rem;
+  gap: .25rem;
+}
+
+.mobile-nav-links a{
+  padding: .85rem .9rem;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  color: var(--text);
+  background: transparent;
+}
+
+.mobile-nav-links a:hover{
+  background: color-mix(in oklab, var(--surface-2) 55%, transparent);
+  border-color: color-mix(in oklab, var(--accent) 35%, var(--line));
+}
+
+.mobile-nav-links .nav-cta{
+  margin-top: .35rem;
+  display:inline-flex;
+  justify-content:center;
+}
+
+body.nav-open{overflow:hidden}
+
+/* Accessibility: reduce motion */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *, *::before, *::after{
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .parallax-layer, .parallax-bg{transform:none !important}
 }
 
 .skill-card{

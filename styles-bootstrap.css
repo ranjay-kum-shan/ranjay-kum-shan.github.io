@@ -1,0 +1,103 @@
+/* Bootstrap version: keep this file small and let Bootstrap do the heavy lifting. */
+
+:root{
+  --hero-grad-1: rgba(124,58,237,.28);
+  --hero-grad-2: rgba(34,197,94,.18);
+}
+
+html{scroll-behavior:smooth; scroll-padding-top: 84px;}
+body{
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Subtle frosted header background helper */
+.backdrop-blur{backdrop-filter: blur(10px)}
+
+/* Scroll progress bar */
+.scroll-progress{
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, #7c3aed, #22c55e);
+  z-index: 1060; /* above navbar */
+}
+
+/* Hero background */
+.hero-bs{
+  background:
+    radial-gradient(900px 500px at 15% -10%, var(--hero-grad-1), transparent 60%),
+    radial-gradient(700px 450px at 95% 0%, var(--hero-grad-2), transparent 60%);
+}
+
+.hero-title{
+  background: linear-gradient(90deg, rgba(255,255,255,.96), rgba(255,255,255,.84));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-bs-theme="light"] .hero-title{
+  background: linear-gradient(90deg, rgba(16,24,40,.95), rgba(16,24,40,.8));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Typing cursor */
+@keyframes blink{0%,49%{opacity:1} 50%,100%{opacity:0}}
+.typing-cursor{animation: blink 1s infinite; font-weight: 300;}
+
+/* Social pills */
+.social-pill{
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .4rem .75rem;
+  border-radius: 999px;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,.15);
+}
+[data-bs-theme="light"] .social-pill{border-color: rgba(16,24,40,.15)}
+.social-pill:hover{transform: translateY(-1px)}
+
+/* Scroll to top */
+.scroll-to-top{
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(17,24,39,.85);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 1060;
+}
+[data-bs-theme="light"] .scroll-to-top{
+  background: rgba(255,255,255,.9);
+  color: #101828;
+  border-color: rgba(16,24,40,.12);
+}
+.scroll-to-top.visible{opacity: 1; pointer-events: auto; transform: translateY(0)}
+
+/* Small hover polish */
+.card{transition: transform .2s ease, box-shadow .2s ease;}
+.card:hover{transform: translateY(-2px)}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *, *::before, *::after{
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

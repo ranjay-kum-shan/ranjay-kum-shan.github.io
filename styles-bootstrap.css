@@ -139,6 +139,41 @@ body{
 .card:hover{transform: translateY(-4px)}
 [data-bs-theme="dark"] .card{box-shadow: 0 16px 46px rgba(0,0,0,.35)}
 
+/* Patent cards */
+.patent-card-bs{
+  position: relative;
+  overflow: hidden;
+}
+
+.patent-card-bs::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .9;
+  background: radial-gradient(650px 260px at 15% 0%, rgba(124,58,237,.18), transparent 65%);
+}
+
+.patent-card-bs > .card-body{position: relative;}
+
+/* Status accents (Published/Granted = green) */
+.patent-card-bs.status-success{
+  border-color: rgba(34,197,94,.35) !important;
+}
+.patent-card-bs.status-success::before{
+  background: radial-gradient(650px 260px at 15% 0%, rgba(34,197,94,.16), transparent 65%);
+}
+
+.patent-card-bs.status-warning{
+  border-color: rgba(245,158,11,.35) !important;
+}
+
+.patent-card-bs.status-danger{
+  border-color: rgba(239,68,68,.35) !important;
+}
+
+.patent-status-bs{white-space: nowrap}
+
 /* ====== Reveal / Stagger Animations (Bootstrap UI) ====== */
 @keyframes riseIn{
   from{opacity: 0; transform: translate3d(0, 18px, 0) scale(.985); filter: blur(3px)}

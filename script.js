@@ -798,9 +798,9 @@ async function fetchGithubRepos(){
         card.className = "col-md-6 col-lg-4";
       }else{
         card.className = "repo-card";
+        card.style.opacity = "0";
+        card.style.transform = "translateY(20px)";
       }
-      card.style.opacity = "0";
-      card.style.transform = "translateY(20px)";
 
       if(isBootstrapUI()){
         const inner = document.createElement("div");
@@ -849,13 +849,7 @@ async function fetchGithubRepos(){
         card.appendChild(inner);
         grid.appendChild(card);
 
-        applyBootstrapReveal(card, 140 + index * 90);
-
-        setTimeout(() => {
-          card.style.transition = "opacity 0.4s ease, transform 0.4s ease";
-          card.style.opacity = "1";
-          card.style.transform = "translateY(0)";
-        }, index * 100);
+        applyBootstrapReveal(card, 110 + index * 60);
         return;
       }
 

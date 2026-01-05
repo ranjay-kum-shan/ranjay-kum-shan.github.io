@@ -2,8 +2,14 @@
 
 function $(id){ return document.getElementById(id); }
 
+function isBootstrapUI(){
+  return document.body && document.body.dataset && document.body.dataset.ui === "bootstrap";
+}
+
 function setTheme(theme){
   document.documentElement.dataset.theme = theme;
+  // Bootstrap 5.3 theme hook
+  document.documentElement.setAttribute("data-bs-theme", theme);
   localStorage.setItem("theme", theme);
 }
 
@@ -154,6 +160,9 @@ function prefersReducedMotion(){
 }
 
 function initMobileNav(){
+  // Bootstrap version uses navbar collapse; no custom mobile nav.
+  if(isBootstrapUI()) return;
+
   const nav = $("mobileNav");
   const overlay = $("mobileNavOverlay");
   const toggle = $("navToggle");
@@ -207,7 +216,7 @@ function initMobileNav(){
 
 function pillLink(label, url){
   const a = document.createElement("a");
-  a.className = "social-pill";
+  a.className = isBootstrapUI() ? "social-pill text-body-secondary bg-body-tertiary" : "social-pill";
   a.textContent = label;
   a.href = url || "#";
   if(url && !url.startsWith("mailto:")){
@@ -261,6 +270,34 @@ function renderProfile(){
   sg.innerHTML = "";
   (p.skills || []).forEach(group => {
     const card = document.createElement("div");
+    if(isBootstrapUI()){
+      card.className = "col-md-6 col-lg-4";
+      const inner = document.createElement("div");
+      inner.className = "card h-100 shadow-sm";
+      const body = document.createElement("div");
+      body.className = "card-body";
+
+      const h = document.createElement("h3");
+      h.className = "h6 fw-bold mb-2";
+      h.textContent = group.category;
+
+      const tags = document.createElement("div");
+      tags.className = "d-flex flex-wrap gap-2";
+      (group.items || []).forEach(item => {
+        const t = document.createElement("span");
+        t.className = "badge text-bg-secondary";
+        t.textContent = item;
+        tags.appendChild(t);
+      });
+
+      body.appendChild(h);
+      body.appendChild(tags);
+      inner.appendChild(body);
+      card.appendChild(inner);
+      sg.appendChild(card);
+      return;
+    }
+
     card.className = "skill-card";
     const h = document.createElement("h3");
     h.className = "skill-title";
@@ -283,6 +320,53 @@ function renderProfile(){
   fp.innerHTML = "";
   (p.featuredProjects || []).forEach(pr => {
     const card = document.createElement("div");
+    if(isBootstrapUI()){
+      card.className = "col-md-6 col-lg-4";
+      const inner = document.createElement("div");
+      inner.className = "card h-100 shadow-sm";
+      const body = document.createElement("div");
+      body.className = "card-body d-flex flex-column";
+
+      const h = document.createElement("h3");
+      h.className = "h6 fw-bold mb-2";
+      h.textContent = pr.title;
+
+      const d = document.createElement("p");
+      d.className = "text-secondary mb-3";
+      d.textContent = pr.description;
+
+      const meta = document.createElement("div");
+      meta.className = "d-flex flex-wrap gap-2 mt-auto";
+      (pr.tech || []).forEach(t => {
+        const s = document.createElement("span");
+        s.className = "badge text-bg-secondary";
+        s.textContent = t;
+        meta.appendChild(s);
+      });
+
+      const links = document.createElement("div");
+      links.className = "d-flex flex-wrap gap-2 mt-3";
+      (pr.links || []).forEach(l => {
+        if(!l.url) return;
+        const a = document.createElement("a");
+        a.className = "btn btn-outline-secondary btn-sm";
+        a.href = l.url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.textContent = `${l.label} ↗`;
+        links.appendChild(a);
+      });
+
+      body.appendChild(h);
+      body.appendChild(d);
+      body.appendChild(meta);
+      if(links.childElementCount) body.appendChild(links);
+      inner.appendChild(body);
+      card.appendChild(inner);
+      fp.appendChild(card);
+      return;
+    }
+
     card.className = "project-card";
     const h = document.createElement("h3");
     h.className = "project-title";
@@ -326,7 +410,7 @@ function renderProfile(){
   ex.innerHTML = "";
   (p.experience || []).forEach(it => {
     const card = document.createElement("div");
-    card.className = "timeline-item";
+    card.className = isBootstrapUI() ? "card shadow-sm" : "timeline-item";
 
     const top = document.createElement("div");
     top.className = "timeline-top";
@@ -366,6 +450,28 @@ function renderProfile(){
   eg.innerHTML = "";
   (p.education || []).forEach(ed => {
     const card = document.createElement("div");
+    if(isBootstrapUI()){
+      card.className = "col-md-6";
+      const inner = document.createElement("div");
+      inner.className = "card h-100 shadow-sm";
+      const body = document.createElement("div");
+      body.className = "card-body";
+
+      const t = document.createElement("h3");
+      t.className = "h6 fw-bold mb-1";
+      t.textContent = ed.title;
+      const m = document.createElement("p");
+      m.className = "text-secondary mb-0";
+      m.textContent = ed.meta;
+
+      body.appendChild(t);
+      body.appendChild(m);
+      inner.appendChild(body);
+      card.appendChild(inner);
+      eg.appendChild(card);
+      return;
+    }
+
     card.className = "edu-card";
     const t = document.createElement("h3");
     t.className = "edu-title";
@@ -384,6 +490,52 @@ function renderProfile(){
     pg.innerHTML = "";
     (p.patents || []).forEach(patent => {
       const card = document.createElement("div");
+      if(isBootstrapUI()){
+        card.className = "col-lg-6";
+        const inner = document.createElement("div");
+        inner.className = "card h-100 shadow-sm";
+        const body = document.createElement("div");
+        body.className = "card-body";
+
+        const title = document.createElement("h3");
+        title.className = "h6 fw-bold mb-2";
+        title.textContent = patent.title;
+
+        const meta = document.createElement("div");
+        meta.className = "d-flex flex-wrap gap-2 text-secondary small mb-2";
+        meta.innerHTML = `
+          <span class="badge text-bg-secondary">${patent.number}</span>
+          <span class="badge text-bg-secondary">${patent.office}</span>
+          <span class="badge text-bg-secondary">${patent.date}</span>
+          <span class="badge text-bg-secondary">${patent.status}</span>
+        `;
+
+        const inventors = document.createElement("p");
+        inventors.className = "text-secondary mb-2";
+        inventors.textContent = `Inventors: ${patent.inventors}`;
+
+        const desc = document.createElement("p");
+        desc.className = "text-secondary mb-3";
+        desc.textContent = patent.description;
+
+        const link = document.createElement("a");
+        link.className = "btn btn-outline-secondary btn-sm";
+        link.href = patent.url;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = "View Patent ↗";
+
+        body.appendChild(title);
+        body.appendChild(meta);
+        body.appendChild(inventors);
+        body.appendChild(desc);
+        body.appendChild(link);
+        inner.appendChild(body);
+        card.appendChild(inner);
+        pg.appendChild(card);
+        return;
+      }
+
       card.className = "patent-card";
       
       const header = document.createElement("div");
@@ -502,9 +654,68 @@ async function fetchGithubRepos(){
 
     top.forEach((r, index) => {
       const card = document.createElement("div");
-      card.className = "repo-card";
+      if(isBootstrapUI()){
+        card.className = "col-md-6 col-lg-4";
+      }else{
+        card.className = "repo-card";
+      }
       card.style.opacity = "0";
       card.style.transform = "translateY(20px)";
+
+      if(isBootstrapUI()){
+        const inner = document.createElement("div");
+        inner.className = "card h-100 shadow-sm";
+        const body = document.createElement("div");
+        body.className = "card-body";
+
+        const topRow = document.createElement("div");
+        topRow.className = "d-flex justify-content-between align-items-center gap-2 mb-2";
+
+        const name = document.createElement("a");
+        name.className = "fw-semibold text-decoration-none";
+        name.href = r.html_url;
+        name.target = "_blank";
+        name.rel = "noopener";
+        name.textContent = r.name;
+
+        const badge = document.createElement("span");
+        badge.className = "badge text-bg-secondary";
+        badge.textContent = r.language || "—";
+
+        topRow.appendChild(name);
+        topRow.appendChild(badge);
+
+        const desc = document.createElement("p");
+        desc.className = "text-secondary mb-3";
+        desc.textContent = r.description || "No description yet.";
+
+        const bottom = document.createElement("div");
+        bottom.className = "d-flex flex-wrap gap-3 text-secondary small";
+        const updatedDate = new Date(r.updated_at).toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+        bottom.innerHTML = `
+          <span>⭐ ${r.stargazers_count}</span>
+          <span>🔱 ${r.forks_count}</span>
+          <span>📅 ${updatedDate}</span>
+        `;
+
+        body.appendChild(topRow);
+        body.appendChild(desc);
+        body.appendChild(bottom);
+        inner.appendChild(body);
+        card.appendChild(inner);
+        grid.appendChild(card);
+
+        setTimeout(() => {
+          card.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+          card.style.opacity = "1";
+          card.style.transform = "translateY(0)";
+        }, index * 100);
+        return;
+      }
 
       const topRow = document.createElement("div");
       topRow.className = "repo-top";
@@ -593,6 +804,19 @@ function initEvents(){
       }
     });
   });
+
+  // If using Bootstrap navbar collapse, close it after navigation.
+  if(isBootstrapUI() && window.bootstrap){
+    const navCollapse = document.getElementById('primaryNav');
+    if(navCollapse){
+      navCollapse.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', () => {
+          const instance = window.bootstrap.Collapse.getInstance(navCollapse) || new window.bootstrap.Collapse(navCollapse, { toggle:false });
+          instance.hide();
+        });
+      });
+    }
+  }
 
   initMobileNav();
 }

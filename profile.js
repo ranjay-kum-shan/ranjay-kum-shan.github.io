@@ -52,7 +52,7 @@ window.PROFILE = {
     },
     { 
       category: "Tools & Platforms", 
-      items: ["Git", "Linux", "Docker", "CI/CD", "JTAG", "Oscilloscope", "Logic Analyzer"] 
+      items: ["Git", "Yocto", "Build root", "Linux", "Docker", "CI/CD", "JTAG", "Oscilloscope", "Logic Analyzer"] 
     },
     { 
       category: "Core Competencies", 

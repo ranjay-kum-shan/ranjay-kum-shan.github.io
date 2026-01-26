@@ -934,10 +934,8 @@ function initEvents(){
   const swipeToggle = $("swipeModeToggle");
   if(swipeToggle){
     swipeToggle.addEventListener('click', () => {
-      const enabled = document.body.classList.toggle('swipe-mode');
-      swipeToggle.setAttribute('aria-pressed', enabled ? 'true' : 'false');
-      if(enabled) enableSwipeDeck();
-      else disableSwipeDeck();
+      const enabled = !document.body.classList.contains('swipe-mode');
+      setSwipeMode(enabled, { persist: true });
     });
   }
 
@@ -974,6 +972,35 @@ function initEvents(){
   }
 
   initMobileNav();
+}
+
+function setSwipeMode(enabled, opts = { persist: true }){
+  const swipeToggle = $("swipeModeToggle");
+
+  if(enabled){
+    document.body.classList.add('swipe-mode');
+    swipeToggle?.setAttribute('aria-pressed', 'true');
+    if(swipeToggle){
+      swipeToggle.classList.remove('btn-outline-secondary');
+      swipeToggle.classList.add('btn-primary');
+      swipeToggle.textContent = 'Swipe: ON';
+    }
+    enableSwipeDeck();
+    showSwipeHintOnce();
+  }else{
+    document.body.classList.remove('swipe-mode');
+    swipeToggle?.setAttribute('aria-pressed', 'false');
+    if(swipeToggle){
+      swipeToggle.classList.add('btn-outline-secondary');
+      swipeToggle.classList.remove('btn-primary');
+      swipeToggle.textContent = 'Swipe';
+    }
+    disableSwipeDeck();
+  }
+
+  if(opts && opts.persist){
+    try{ localStorage.setItem('swipeMode', enabled ? '1' : '0'); }catch(_){ /* ignore */ }
+  }
 }
 
 let swipeDeck = {
@@ -1059,7 +1086,6 @@ function enableSwipeDeck(){
   if(cardsBar) cardsBar.style.display = 'none';
 
   renderSwipeDeckState();
-  showSwipeHintOnce();
 
   window.addEventListener('resize', setHeaderHeightVar);
 }
@@ -1377,6 +1403,14 @@ function initSwipeGestures(){
   renderProfile();
   initEvents();
   initSwipeGestures();
+
+  // Restore swipe mode preference
+  try{
+    if(localStorage.getItem('swipeMode') === '1'){
+      setSwipeMode(true, { persist: false });
+    }
+  }catch(_){ /* ignore */ }
+
   initScrollAnimations();
   initLayerAnimations();
   if(!prefersReducedMotion()){

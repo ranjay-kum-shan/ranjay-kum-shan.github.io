@@ -1013,6 +1013,7 @@ let swipeDeck = {
   overlayEl: null,
   deckEl: null,
   restorePoints: [],
+  slides: [],
   hintEl: null,
   pointerId: null,
   startX: 0,
@@ -1053,26 +1054,25 @@ function getInitialSectionIndex(sections){
   return bestIdx;
 }
 
-function renderSwipeDeckState(){
-  const sections = swipeDeck.sections;
-  const idx = swipeDeck.index;
-  sections.forEach((sec, i) => {
-    sec.dataset.swipeHidden = (i !== idx && i !== idx + 1) ? 'true' : 'false';
-    sec.dataset.swipeActive = (i === idx) ? 'true' : 'false';
-    sec.dataset.swipeNext = (i === idx + 1) ? 'true' : 'false';
-    sec.style.zIndex = i === idx ? '3' : (i === idx + 1 ? '2' : '1');
+function getSwipeDeckWidth(){
+  const el = swipeDeck.deckEl;
+  return el ? el.getBoundingClientRect().width : window.innerWidth;
+}
 
-    if(i === idx){
-      // reset in case previous swipe left transform
-      sec.style.transition = '';
-      sec.style.transform = 'translate3d(0,0,0) rotate(0deg)';
-    }
-  });
+function scrollSwipeDeckToIndex(index, behavior = 'smooth'){
+  if(!swipeDeck.deckEl) return;
+  const w = getSwipeDeckWidth();
+  swipeDeck.deckEl.scrollTo({ left: index * (w + 16), behavior });
+}
 
-  const active = sections[idx];
-  swipeDeck.activeEl = active;
-  if(active){
-    history.replaceState(null, '', `#${active.id}`);
+function setSwipeActiveIndex(index, opts = { scroll: true, behavior: 'smooth' }){
+  swipeDeck.index = Math.max(0, Math.min(index, swipeDeck.sections.length - 1));
+  swipeDeck.activeEl = swipeDeck.sections[swipeDeck.index] || null;
+  if(swipeDeck.activeEl){
+    history.replaceState(null, '', `#${swipeDeck.activeEl.id}`);
+  }
+  if(opts.scroll){
+    scrollSwipeDeckToIndex(swipeDeck.index, opts.behavior || 'smooth');
   }
 }
 
@@ -1142,22 +1142,24 @@ function enableSwipeDeck(){
   swipeDeck.sections = getOrderedSections();
   swipeDeck.index = getInitialSectionIndex(swipeDeck.sections);
 
-  // Move real section nodes into the overlay deck, remember where to restore them.
-  swipeDeck.restorePoints = swipeDeck.sections.map(sec => ({
-    sec,
-    parent: sec.parentNode,
-    next: sec.nextSibling
-  }));
+  // Move real section nodes into the overlay deck, wrapped into slides.
+  swipeDeck.restorePoints = swipeDeck.sections.map(sec => ({ sec, parent: sec.parentNode, next: sec.nextSibling }));
+  swipeDeck.slides = [];
+  swipeDeck.deckEl.innerHTML = '';
   swipeDeck.sections.forEach(sec => {
+    const slide = document.createElement('div');
+    slide.className = 'swipe-slide';
     sec.classList.add('swipe-card');
-    swipeDeck.deckEl.appendChild(sec);
+    slide.appendChild(sec);
+    swipeDeck.deckEl.appendChild(slide);
+    swipeDeck.slides.push(slide);
   });
 
   // Ensure previous layout artifacts are hidden
   const cardsBar = $('sectionCards');
   if(cardsBar) cardsBar.style.display = 'none';
 
-  renderSwipeDeckState();
+  setSwipeActiveIndex(swipeDeck.index, { scroll: true, behavior: 'auto' });
 
   window.addEventListener('resize', setHeaderHeightVar);
 }
@@ -1180,9 +1182,6 @@ function disableSwipeDeck(){
   // Restore sections back to main
   swipeDeck.restorePoints.forEach(({ sec, parent, next }) => {
     sec.classList.remove('swipe-card');
-    delete sec.dataset.swipeHidden;
-    delete sec.dataset.swipeActive;
-    delete sec.dataset.swipeNext;
     sec.style.transition = '';
     sec.style.transform = '';
     sec.style.zIndex = '';
@@ -1192,6 +1191,8 @@ function disableSwipeDeck(){
     }
   });
   swipeDeck.restorePoints = [];
+  swipeDeck.slides = [];
+  if(swipeDeck.deckEl) swipeDeck.deckEl.innerHTML = '';
 
   swipeDeck.sections = [];
 
@@ -1399,6 +1400,50 @@ function initSwipeGestures(){
     return el.scrollTop < max - 2;
   }
 
+  // Sync index/hash as the user swipes horizontally (native).
+  let scrollTimer = null;
+  surface.addEventListener('scroll', () => {
+    if(!document.body.classList.contains('swipe-mode')) return;
+    if(scrollTimer) window.clearTimeout(scrollTimer);
+    scrollTimer = window.setTimeout(() => {
+      const w = getSwipeDeckWidth();
+      const step = w + 16;
+      const idx = Math.round(surface.scrollLeft / step);
+      setSwipeActiveIndex(idx, { scroll: false });
+    }, 90);
+  }, { passive: true });
+
+  // Desktop: click-drag to scroll horizontally.
+  let dragging = false;
+  let dragStartX = 0;
+  let dragStartLeft = 0;
+  surface.addEventListener('pointerdown', (e) => {
+    if(!document.body.classList.contains('swipe-mode')) return;
+    if(e.pointerType === 'touch') return; // let native swipe
+    if(typeof e.button === 'number' && e.button !== 0) return;
+    dragging = true;
+    dragStartX = e.clientX;
+    dragStartLeft = surface.scrollLeft;
+    surface.style.cursor = 'grabbing';
+    try{ surface.setPointerCapture(e.pointerId); }catch(_){ /* ignore */ }
+  }, { passive: true });
+
+  surface.addEventListener('pointermove', (e) => {
+    if(!dragging) return;
+    const dx = e.clientX - dragStartX;
+    surface.scrollLeft = dragStartLeft - dx;
+  }, { passive: true });
+
+  surface.addEventListener('pointerup', () => {
+    dragging = false;
+    surface.style.cursor = '';
+  }, { passive: true });
+
+  surface.addEventListener('pointercancel', () => {
+    dragging = false;
+    surface.style.cursor = '';
+  }, { passive: true });
+
   function shouldIgnoreTarget(t){
     if(!t) return true;
     const tag = (t.tagName || '').toLowerCase();
@@ -1506,90 +1551,6 @@ function initSwipeGestures(){
   surface.addEventListener('pointerup', onPointerUp, { passive: true });
   surface.addEventListener('pointercancel', onPointerUp, { passive: true });
 
-  // Touch fallback (Mobile Safari reliability)
-  let touchActive = false;
-  function onTouchStart(e){
-    if(!document.body.classList.contains('swipe-mode')) return;
-    if(!swipeDeck.enabled) return;
-    if(!e.touches || e.touches.length !== 1) return;
-    if(shouldIgnoreTarget(e.target)) return;
-    const active = swipeDeck.activeEl;
-    if(!active) return;
-    touchActive = true;
-    swipeDeck.startX = e.touches[0].clientX;
-    swipeDeck.startY = e.touches[0].clientY;
-    active.style.transition = 'none';
-  }
-
-  function onTouchMove(e){
-    if(!touchActive) return;
-    const active = swipeDeck.activeEl;
-    if(!active) return;
-    const t = e.touches && e.touches[0];
-    if(!t) return;
-    const dx = t.clientX - swipeDeck.startX;
-    const dy = t.clientY - swipeDeck.startY;
-    const absX = Math.abs(dx);
-    const absY = Math.abs(dy);
-
-    // Only hijack when the gesture is clearly horizontal.
-    // Be strict here so vertical scrolling doesn't get blocked on iOS Safari.
-    if(absX > 18 && absX > absY * 1.8){
-      e.preventDefault();
-      const rot = Math.max(-14, Math.min(14, dx / 22));
-      active.style.transform = `translate3d(${dx}px, ${dy * 0.08}px, 0) rotate(${rot}deg)`;
-    }
-  }
-
-  function onTouchEnd(e){
-    if(!touchActive) return;
-    touchActive = false;
-    const active = swipeDeck.activeEl;
-    if(!active) return;
-
-    const t = e.changedTouches && e.changedTouches[0];
-    if(!t) return;
-    const dx = t.clientX - swipeDeck.startX;
-    const dy = t.clientY - swipeDeck.startY;
-    const absX = Math.abs(dx);
-    const absY = Math.abs(dy);
-    const threshold = Math.max(90, Math.round(window.innerWidth * 0.22));
-
-    function back(){
-      active.style.transition = prefersReducedMotion() ? 'none' : 'transform 220ms ease';
-      active.style.transform = 'translate3d(0,0,0) rotate(0deg)';
-    }
-
-    if(absX < threshold || absX < absY * 1.35){
-      back();
-      return;
-    }
-
-    const dir = dx < 0 ? -1 : 1;
-    const nextIndex = dx < 0 ? swipeDeck.index + 1 : swipeDeck.index - 1;
-    if(nextIndex < 0 || nextIndex >= swipeDeck.sections.length){
-      back();
-      return;
-    }
-
-    const w = Math.max(320, window.innerWidth);
-    const x = dir * (w * 1.15);
-    const rot = dir * 18;
-    active.style.transition = prefersReducedMotion() ? 'none' : 'transform 240ms ease';
-    active.style.transform = `translate3d(${x}px, 0, 0) rotate(${rot}deg)`;
-
-    window.setTimeout(() => {
-      active.style.transition = '';
-      active.style.transform = 'translate3d(0,0,0) rotate(0deg)';
-      swipeDeck.index = nextIndex;
-      renderSwipeDeckState();
-    }, prefersReducedMotion() ? 0 : 245);
-  }
-
-  surface.addEventListener('touchstart', onTouchStart, { passive: true });
-  surface.addEventListener('touchmove', onTouchMove, { passive: false });
-  surface.addEventListener('touchend', onTouchEnd, { passive: true });
-
   // Mouse wheel / trackpad (reliable even when the page is scroll-locked):
   // - Always prevent default and apply scrolling to the active card.
   // - When at the top/bottom, wheel can navigate cards.
@@ -1608,14 +1569,11 @@ function initSwipeGestures(){
     // We'll manage scrolling manually.
     e.preventDefault();
 
-    // Trackpad horizontal swipe: navigate cards.
-    if(absX > absY * 1.4 && absX > 10){
+    // Trackpad horizontal swipe: scroll deck.
+    if(absX > absY * 1.2 && absX > 6){
       if(wheelLock) return;
-      const nextIndex = dx > 0 ? swipeDeck.index + 1 : swipeDeck.index - 1;
-      if(nextIndex < 0 || nextIndex >= swipeDeck.sections.length) return;
       wheelLock = true;
-      swipeDeck.index = nextIndex;
-      renderSwipeDeckState();
+      surface.scrollLeft += dx;
       window.setTimeout(() => { wheelLock = false; }, 220);
       return;
     }
@@ -1632,14 +1590,13 @@ function initSwipeGestures(){
       return;
     }
 
-    // At top/bottom: navigate cards.
+    // At top/bottom: navigate cards by snapping.
     if(wheelLock) return;
     if(absY < 6) return;
     const nextIndex = down ? swipeDeck.index + 1 : swipeDeck.index - 1;
     if(nextIndex < 0 || nextIndex >= swipeDeck.sections.length) return;
     wheelLock = true;
-    swipeDeck.index = nextIndex;
-    renderSwipeDeckState();
+    setSwipeActiveIndex(nextIndex, { scroll: true, behavior: 'smooth' });
     window.setTimeout(() => { wheelLock = false; }, 220);
   }, { passive: false });
 }

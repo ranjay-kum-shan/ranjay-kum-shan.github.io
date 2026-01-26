@@ -1109,7 +1109,7 @@ function showSwipeHintOnce(){
   if(swipeDeck.hintEl) return;
   const el = document.createElement('div');
   el.className = 'swipe-hint';
-  el.textContent = 'Drag left/right to switch sections • Esc to exit';
+  el.textContent = 'Drag left/right to switch • Wheel scrolls card • Esc exits';
   document.body.appendChild(el);
   swipeDeck.hintEl = el;
   window.setTimeout(() => {
@@ -1389,6 +1389,16 @@ function initSwipeGestures(){
   const surface = swipeDeck.deckEl;
   if(!surface) return;
 
+  let wheelLock = false;
+  function canScrollUp(el){
+    return el && el.scrollTop > 2;
+  }
+  function canScrollDown(el){
+    if(!el) return false;
+    const max = el.scrollHeight - el.clientHeight;
+    return el.scrollTop < max - 2;
+  }
+
   function shouldIgnoreTarget(t){
     if(!t) return true;
     const tag = (t.tagName || '').toLowerCase();
@@ -1578,6 +1588,35 @@ function initSwipeGestures(){
   surface.addEventListener('touchstart', onTouchStart, { passive: true });
   surface.addEventListener('touchmove', onTouchMove, { passive: false });
   surface.addEventListener('touchend', onTouchEnd, { passive: true });
+
+  // Mouse wheel / trackpad:
+  // - If the active card can scroll, let it scroll.
+  // - If it can't (top/bottom reached), wheel navigates cards.
+  surface.addEventListener('wheel', (e) => {
+    if(!document.body.classList.contains('swipe-mode')) return;
+    if(!swipeDeck.enabled) return;
+    const active = swipeDeck.activeEl;
+    if(!active) return;
+
+    // If user is actively scrolling inside card, don't steal it.
+    const down = e.deltaY > 0;
+    const up = e.deltaY < 0;
+    if(down && canScrollDown(active)) return;
+    if(up && canScrollUp(active)) return;
+
+    // Otherwise: treat as navigation (debounced)
+    if(wheelLock) return;
+    if(Math.abs(e.deltaY) < 6) return;
+
+    const nextIndex = down ? swipeDeck.index + 1 : swipeDeck.index - 1;
+    if(nextIndex < 0 || nextIndex >= swipeDeck.sections.length) return;
+
+    e.preventDefault();
+    wheelLock = true;
+    swipeDeck.index = nextIndex;
+    renderSwipeDeckState();
+    window.setTimeout(() => { wheelLock = false; }, 220);
+  }, { passive: false });
 }
 
 (function init(){

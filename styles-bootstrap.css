@@ -298,12 +298,6 @@ body.swipe-mode{
 }
 
 body.swipe-mode{
-  /* iOS Safari: overflow hidden on body alone isn't enough */
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: var(--swipe-lock-top, 0px);
-  width: 100%;
   padding-bottom: 0 !important;
 }
 
@@ -314,28 +308,45 @@ body.swipe-mode #sectionCards{
   display: none !important;
 }
 
-body.swipe-mode main{
-  height: calc(100vh - var(--header-h));
-  overflow: hidden;
-  position: relative;
+body.swipe-mode main{ display: none; }
+
+/* Overlay deck that takes over the viewport (under the sticky header) */
+.swipe-overlay{
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--header-h);
+  bottom: 0;
+  z-index: 1010;
+  padding: 12px;
+  background: rgba(11,12,16,.62);
+  backdrop-filter: blur(10px);
 }
 
-body.swipe-mode main section{
+[data-bs-theme="light"] .swipe-overlay{
+  background: rgba(255,255,255,.65);
+}
+
+.swipe-deck{
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.swipe-card{
   position: absolute;
   inset: 0;
 
-  /* Make each section behave like a single card view */
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 
-  /* Override Bootstrap spacing for full-screen cards */
   padding-top: 1.25rem !important;
   padding-bottom: 1.25rem !important;
 
   border-radius: 22px;
-  margin: 12px auto;
-  width: min(1100px, calc(100% - 24px));
+  margin: 0 auto;
+  width: min(1100px, 100%);
   box-shadow: 0 18px 55px rgba(0,0,0,.35);
   border: 1px solid rgba(35,40,56,.75);
   background: var(--bs-tertiary-bg);
@@ -344,33 +355,21 @@ body.swipe-mode main section{
   will-change: transform;
 }
 
-body.swipe-mode main section.hero-bs{
-  /* Keep hero gradient */
+.swipe-card.hero-bs{
   background:
     radial-gradient(900px 500px at 15% -10%, var(--hero-grad-1), transparent 60%),
     radial-gradient(700px 450px at 95% 0%, var(--hero-grad-2), transparent 60%),
     var(--bs-tertiary-bg);
 }
 
-[data-bs-theme="light"] body.swipe-mode main section{
+[data-bs-theme="light"] .swipe-card{
   border-color: rgba(16,24,40,.12);
   box-shadow: 0 18px 55px rgba(16,24,40,.12);
 }
 
-body.swipe-mode main section[data-swipe-hidden="true"]{
-  display: none;
-}
-
-body.swipe-mode main section[data-swipe-active="true"]{
-  opacity: 1;
-  pointer-events: auto;
-}
-
-body.swipe-mode main section[data-swipe-next="true"]{
-  opacity: 1;
-  pointer-events: none;
-  transform: translate3d(0, 10px, 0) scale(.985);
-}
+.swipe-card[data-swipe-hidden="true"]{ display: none; }
+.swipe-card[data-swipe-active="true"]{ display: block; pointer-events: auto; }
+.swipe-card[data-swipe-next="true"]{ display: block; pointer-events: none; transform: translate3d(0, 10px, 0) scale(.985); }
 
 body.swipe-mode .swipe-hint{
   position: fixed;

@@ -1010,6 +1010,9 @@ let swipeDeck = {
   sections: [],
   index: 0,
   savedScrollY: 0,
+  overlayEl: null,
+  deckEl: null,
+  restorePoints: [],
   hintEl: null,
   pointerId: null,
   startX: 0,
@@ -1073,6 +1076,22 @@ function renderSwipeDeckState(){
   }
 }
 
+function ensureSwipeOverlay(){
+  if(swipeDeck.overlayEl && swipeDeck.deckEl) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'swipeDeckOverlay';
+  overlay.className = 'swipe-overlay';
+  overlay.hidden = true;
+
+  const deck = document.createElement('div');
+  deck.className = 'swipe-deck';
+  overlay.appendChild(deck);
+
+  document.body.appendChild(overlay);
+  swipeDeck.overlayEl = overlay;
+  swipeDeck.deckEl = deck;
+}
+
 function showSwipeHintOnce(){
   if(swipeDeck.hintEl) return;
   const el = document.createElement('div');
@@ -1092,13 +1111,25 @@ function enableSwipeDeck(){
   swipeDeck.enabled = true;
   setHeaderHeightVar();
 
-  // Lock current page scroll position (important for iOS Safari)
+  ensureSwipeOverlay();
+  swipeDeck.overlayEl.hidden = false;
+
+  // Lock current page scroll position (helps iOS Safari + prevents jump)
   swipeDeck.savedScrollY = window.scrollY || 0;
-  document.body.style.setProperty('--swipe-lock-top', `-${swipeDeck.savedScrollY}px`);
-  document.documentElement.classList.add('swipe-mode');
 
   swipeDeck.sections = getOrderedSections();
   swipeDeck.index = getInitialSectionIndex(swipeDeck.sections);
+
+  // Move real section nodes into the overlay deck, remember where to restore them.
+  swipeDeck.restorePoints = swipeDeck.sections.map(sec => ({
+    sec,
+    parent: sec.parentNode,
+    next: sec.nextSibling
+  }));
+  swipeDeck.sections.forEach(sec => {
+    sec.classList.add('swipe-card');
+    swipeDeck.deckEl.appendChild(sec);
+  });
 
   // Ensure previous layout artifacts are hidden
   const cardsBar = $('sectionCards');
@@ -1116,25 +1147,34 @@ function disableSwipeDeck(){
   swipeDeck.moved = false;
   swipeDeck.activeEl = null;
 
-  document.documentElement.classList.remove('swipe-mode');
-  document.body.style.setProperty('--swipe-lock-top', '0px');
-
-  // Remove inline styles/datasets so normal scrolling looks normal
-  swipeDeck.sections.forEach(sec => {
+  // Restore sections back to main
+  swipeDeck.restorePoints.forEach(({ sec, parent, next }) => {
+    sec.classList.remove('swipe-card');
     delete sec.dataset.swipeHidden;
     delete sec.dataset.swipeActive;
     delete sec.dataset.swipeNext;
     sec.style.transition = '';
     sec.style.transform = '';
     sec.style.zIndex = '';
+    if(parent){
+      if(next) parent.insertBefore(sec, next);
+      else parent.appendChild(sec);
+    }
   });
+  swipeDeck.restorePoints = [];
+
   swipeDeck.sections = [];
 
   window.removeEventListener('resize', setHeaderHeightVar);
 
   // Restore page scroll position
   if(typeof swipeDeck.savedScrollY === 'number'){
-    window.scrollTo({ top: swipeDeck.savedScrollY, behavior: 'instant' });
+    // Safari doesn't support behavior: "instant"
+    window.scrollTo(0, swipeDeck.savedScrollY);
+  }
+
+  if(swipeDeck.overlayEl){
+    swipeDeck.overlayEl.hidden = true;
   }
 }
 
@@ -1314,8 +1354,9 @@ function initSectionCards(){
 }
 
 function initSwipeGestures(){
-  const main = document.querySelector('main');
-  if(!main) return;
+  ensureSwipeOverlay();
+  const surface = swipeDeck.deckEl;
+  if(!surface) return;
 
   function shouldIgnoreTarget(t){
     if(!t) return true;
@@ -1419,10 +1460,10 @@ function initSwipeGestures(){
     }, prefersReducedMotion() ? 0 : 245);
   }
 
-  main.addEventListener('pointerdown', onPointerDown, { passive: true });
-  main.addEventListener('pointermove', onPointerMove, { passive: true });
-  main.addEventListener('pointerup', onPointerUp, { passive: true });
-  main.addEventListener('pointercancel', onPointerUp, { passive: true });
+  surface.addEventListener('pointerdown', onPointerDown, { passive: true });
+  surface.addEventListener('pointermove', onPointerMove, { passive: true });
+  surface.addEventListener('pointerup', onPointerUp, { passive: true });
+  surface.addEventListener('pointercancel', onPointerUp, { passive: true });
 
   // Touch fallback (Mobile Safari reliability)
   let touchActive = false;
@@ -1503,9 +1544,9 @@ function initSwipeGestures(){
     }, prefersReducedMotion() ? 0 : 245);
   }
 
-  main.addEventListener('touchstart', onTouchStart, { passive: true });
-  main.addEventListener('touchmove', onTouchMove, { passive: false });
-  main.addEventListener('touchend', onTouchEnd, { passive: true });
+  surface.addEventListener('touchstart', onTouchStart, { passive: true });
+  surface.addEventListener('touchmove', onTouchMove, { passive: false });
+  surface.addEventListener('touchend', onTouchEnd, { passive: true });
 }
 
 (function init(){

@@ -1,0 +1,299 @@
+/* Bootstrap version: keep this file small and let Bootstrap do the heavy lifting. */
+
+:root{
+  --hero-grad-1: rgba(124,58,237,.28);
+  --hero-grad-2: rgba(34,197,94,.18);
+  --accent: #7c3aed;
+  --accent-2: #22c55e;
+}
+
+/* Richer Bootstrap dark theme (less dull) */
+[data-bs-theme="dark"]{
+  --bs-body-bg: #0b0c10;
+  --bs-body-bg-rgb: 11,12,16;
+  --bs-body-color: #f3f4f6;
+  --bs-body-color-rgb: 243,244,246;
+
+  --bs-secondary-color: rgba(243,244,246,.66);
+  --bs-secondary-color-rgb: 243,244,246;
+
+  --bs-tertiary-bg: #12141a;
+  --bs-tertiary-bg-rgb: 18,20,26;
+  --bs-secondary-bg: #10131a;
+  --bs-secondary-bg-rgb: 16,19,26;
+
+  --bs-border-color: #232838;
+  --bs-border-color-translucent: rgba(35,40,56,.65);
+
+  --bs-card-bg: #12141a;
+  --bs-card-cap-bg: rgba(18,20,26,.6);
+  --bs-box-shadow: 0 14px 40px rgba(0,0,0,.35);
+
+  --bs-link-color: rgba(243,244,246,.9);
+  --bs-link-hover-color: #ffffff;
+
+  --bs-primary: var(--accent);
+  --bs-primary-rgb: 124,58,237;
+}
+
+[data-bs-theme="dark"] .btn-primary{
+  --bs-btn-bg: var(--accent);
+  --bs-btn-border-color: rgba(124,58,237,.65);
+  --bs-btn-hover-bg: rgba(124,58,237,.92);
+  --bs-btn-hover-border-color: rgba(124,58,237,.9);
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary{
+  --bs-btn-color: rgba(243,244,246,.8);
+  --bs-btn-border-color: rgba(35,40,56,.95);
+  --bs-btn-hover-bg: rgba(18,20,26,.9);
+  --bs-btn-hover-border-color: rgba(124,58,237,.55);
+}
+
+html{scroll-behavior:smooth; scroll-padding-top: 84px;}
+body{
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Subtle frosted header background helper */
+.backdrop-blur{backdrop-filter: blur(10px)}
+
+/* Scroll progress bar */
+.scroll-progress{
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  background: linear-gradient(90deg, #7c3aed, #22c55e);
+  z-index: 1060; /* above navbar */
+}
+
+/* Hero background */
+.hero-bs{
+  background:
+    radial-gradient(900px 500px at 15% -10%, var(--hero-grad-1), transparent 60%),
+    radial-gradient(700px 450px at 95% 0%, var(--hero-grad-2), transparent 60%);
+}
+
+.hero-title{
+  background: linear-gradient(90deg, rgba(255,255,255,.98), rgba(124,58,237,.92), rgba(34,197,94,.78));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-bs-theme="light"] .hero-title{
+  background: linear-gradient(90deg, rgba(16,24,40,.95), rgba(124,58,237,.95), rgba(16,24,40,.8));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Typing cursor */
+@keyframes blink{0%,49%{opacity:1} 50%,100%{opacity:0}}
+.typing-cursor{animation: blink .8s infinite; font-weight: 300;}
+
+/* Social pills */
+.social-pill{
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .4rem .75rem;
+  border-radius: 999px;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,.15);
+}
+[data-bs-theme="light"] .social-pill{border-color: rgba(16,24,40,.15)}
+.social-pill{transition: transform .12s ease, border-color .12s ease, background-color .12s ease;}
+.social-pill:hover{transform: translateY(-2px); border-color: rgba(124,58,237,.55)}
+
+/* Project card links (subtle accent border) */
+#featuredProjects .btn-outline-secondary.btn-sm{
+  --bs-btn-color: rgba(243,244,246,.82);
+  --bs-btn-border-color: rgba(124,58,237,.28);
+  --bs-btn-hover-bg: rgba(124,58,237,.10);
+  --bs-btn-hover-border-color: rgba(124,58,237,.50);
+}
+
+[data-bs-theme="light"] #featuredProjects .btn-outline-secondary.btn-sm{
+  --bs-btn-color: rgba(16,24,40,.75);
+  --bs-btn-border-color: rgba(124,58,237,.25);
+  --bs-btn-hover-bg: rgba(124,58,237,.08);
+  --bs-btn-hover-border-color: rgba(124,58,237,.45);
+}
+
+/* Scroll to top */
+.scroll-to-top{
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(17,24,39,.85);
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s ease, transform .15s ease;
+  z-index: 1060;
+}
+[data-bs-theme="light"] .scroll-to-top{
+  background: rgba(255,255,255,.9);
+  color: #101828;
+  border-color: rgba(16,24,40,.12);
+}
+.scroll-to-top.visible{opacity: 1; pointer-events: auto; transform: translateY(0)}
+
+/* Small hover polish */
+.card{transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;}
+.card:hover{transform: translateY(-4px)}
+[data-bs-theme="dark"] .card{box-shadow: 0 16px 46px rgba(0,0,0,.35)}
+
+/* Patent cards */
+.patent-card-bs{
+  position: relative;
+  overflow: hidden;
+}
+
+.patent-card-bs::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .9;
+  background: radial-gradient(650px 260px at 15% 0%, rgba(124,58,237,.18), transparent 65%);
+}
+
+.patent-card-bs > .card-body{position: relative;}
+
+/* Status accents (Published/Granted = green) */
+.patent-card-bs.status-success{
+  border-color: rgba(34,197,94,.35) !important;
+}
+.patent-card-bs.status-success::before{
+  background: radial-gradient(650px 260px at 15% 0%, rgba(34,197,94,.16), transparent 65%);
+}
+
+.patent-card-bs.status-warning{
+  border-color: rgba(245,158,11,.35) !important;
+}
+
+.patent-card-bs.status-danger{
+  border-color: rgba(239,68,68,.35) !important;
+}
+
+.patent-status-bs{white-space: nowrap}
+
+/* ====== Reveal / Stagger Animations (Bootstrap UI) ====== */
+@keyframes riseIn{
+  from{opacity: 0; transform: translate3d(0, 18px, 0) scale(.985); filter: blur(3px)}
+  to{opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: blur(0)}
+}
+
+.reveal{
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition: opacity .42s ease, transform .42s ease;
+  transition-delay: var(--d, 0ms);
+  will-change: opacity, transform;
+}
+
+.reveal.visible{
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  animation: riseIn .5s cubic-bezier(.2,.8,.2,1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+/* ====== Swipe Card Navigation (mobile) ====== */
+:root{
+  --cards-bar-h: 86px;
+}
+
+body{ padding-bottom: calc(var(--cards-bar-h) + env(safe-area-inset-bottom, 0px)); }
+
+.section-cards{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1060;
+  height: var(--cards-bar-h);
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+
+  display: flex;
+  gap: 10px;
+  align-items: center;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+
+  background: rgba(18,20,26,.72);
+  border-top: 1px solid rgba(35,40,56,.65);
+  backdrop-filter: blur(10px);
+}
+
+[data-bs-theme="light"] .section-cards{
+  background: rgba(255,255,255,.82);
+  border-top-color: rgba(16,24,40,.12);
+}
+
+.section-cards::-webkit-scrollbar{height: 8px;}
+.section-cards::-webkit-scrollbar-thumb{background: rgba(124,58,237,.25); border-radius: 999px;}
+
+.section-card{
+  scroll-snap-align: center;
+  flex: 0 0 auto;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+
+  padding: 10px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(18,20,26,.75);
+  color: rgba(243,244,246,.88);
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+
+  transform: translateY(0);
+  transition: transform .15s ease, border-color .15s ease, background-color .15s ease;
+}
+
+[data-bs-theme="light"] .section-card{
+  background: rgba(255,255,255,.9);
+  border-color: rgba(16,24,40,.12);
+  color: rgba(16,24,40,.82);
+}
+
+.section-card:hover{
+  transform: translateY(-2px);
+  border-color: rgba(124,58,237,.45);
+}
+
+.section-card.is-active{
+  border-color: rgba(124,58,237,.65);
+  background: linear-gradient(90deg, rgba(124,58,237,.22), rgba(34,197,94,.14));
+
+/* Hero subtle entrance */
+.hero-bs .reveal.visible{animation-duration: .65s}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *, *::before, *::after{
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

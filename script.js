@@ -1054,15 +1054,18 @@ function getInitialSectionIndex(sections){
   return bestIdx;
 }
 
-function getSwipeDeckWidth(){
-  const el = swipeDeck.deckEl;
-  return el ? el.getBoundingClientRect().width : window.innerWidth;
-}
-
 function scrollSwipeDeckToIndex(index, behavior = 'smooth'){
   if(!swipeDeck.deckEl) return;
-  const w = getSwipeDeckWidth();
-  swipeDeck.deckEl.scrollTo({ left: index * (w + 16), behavior });
+  const slide = swipeDeck.slides && swipeDeck.slides[index];
+  if(!slide) return;
+
+  // scrollIntoView is more reliable than scrollLeft math across browsers
+  // (especially with flex gap + iOS Safari).
+  const opts = { behavior, block: 'nearest', inline: 'center' };
+  // Let layout settle before scrolling.
+  requestAnimationFrame(() => {
+    try{ slide.scrollIntoView(opts); }catch(_){ slide.scrollIntoView(); }
+  });
 }
 
 function setSwipeActiveIndex(index, opts = { scroll: true, behavior: 'smooth' }){
@@ -1406,10 +1409,18 @@ function initSwipeGestures(){
     if(!document.body.classList.contains('swipe-mode')) return;
     if(scrollTimer) window.clearTimeout(scrollTimer);
     scrollTimer = window.setTimeout(() => {
-      const w = getSwipeDeckWidth();
-      const step = w + 16;
-      const idx = Math.round(surface.scrollLeft / step);
-      setSwipeActiveIndex(idx, { scroll: false });
+      // Find slide closest to the deck center
+      const deckRect = surface.getBoundingClientRect();
+      const centerX = deckRect.left + deckRect.width / 2;
+      let bestIdx = 0;
+      let bestDist = Infinity;
+      (swipeDeck.slides || []).forEach((slide, idx) => {
+        const r = slide.getBoundingClientRect();
+        const slideCenter = r.left + r.width / 2;
+        const dist = Math.abs(slideCenter - centerX);
+        if(dist < bestDist){ bestDist = dist; bestIdx = idx; }
+      });
+      setSwipeActiveIndex(bestIdx, { scroll: false });
     }, 90);
   }, { passive: true });
 

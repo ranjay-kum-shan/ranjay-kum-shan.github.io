@@ -1056,16 +1056,12 @@ function getInitialSectionIndex(sections){
 
 function scrollSwipeDeckToIndex(index, behavior = 'smooth'){
   if(!swipeDeck.deckEl) return;
-  const slide = swipeDeck.slides && swipeDeck.slides[index];
-  if(!slide) return;
-
-  // scrollIntoView is more reliable than scrollLeft math across browsers
-  // (especially with flex gap + iOS Safari).
-  const opts = { behavior, block: 'nearest', inline: 'center' };
-  // Let layout settle before scrolling.
-  requestAnimationFrame(() => {
-    try{ slide.scrollIntoView(opts); }catch(_){ slide.scrollIntoView(); }
-  });
+  const w = swipeDeck.deckEl.clientWidth || window.innerWidth;
+  try{
+    swipeDeck.deckEl.scrollTo({ left: index * w, behavior });
+  }catch(_){
+    swipeDeck.deckEl.scrollLeft = index * w;
+  }
 }
 
 function setSwipeActiveIndex(index, opts = { scroll: true, behavior: 'smooth' }){
@@ -1136,11 +1132,16 @@ function enableSwipeDeck(){
   if(main) main.style.display = 'none';
 
   // Hard lock scroll (extra safety for Safari/iOS)
+  swipeDeck.savedScrollY = window.scrollY || 0;
   document.documentElement.style.overflow = 'hidden';
   document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${swipeDeck.savedScrollY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
 
   // Lock current page scroll position (helps iOS Safari + prevents jump)
-  swipeDeck.savedScrollY = window.scrollY || 0;
 
   swipeDeck.sections = getOrderedSections();
   swipeDeck.index = getInitialSectionIndex(swipeDeck.sections);
@@ -1181,6 +1182,11 @@ function disableSwipeDeck(){
   // Release hard lock
   document.documentElement.style.overflow = '';
   document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
 
   // Restore sections back to main
   swipeDeck.restorePoints.forEach(({ sec, parent, next }) => {
@@ -1409,18 +1415,9 @@ function initSwipeGestures(){
     if(!document.body.classList.contains('swipe-mode')) return;
     if(scrollTimer) window.clearTimeout(scrollTimer);
     scrollTimer = window.setTimeout(() => {
-      // Find slide closest to the deck center
-      const deckRect = surface.getBoundingClientRect();
-      const centerX = deckRect.left + deckRect.width / 2;
-      let bestIdx = 0;
-      let bestDist = Infinity;
-      (swipeDeck.slides || []).forEach((slide, idx) => {
-        const r = slide.getBoundingClientRect();
-        const slideCenter = r.left + r.width / 2;
-        const dist = Math.abs(slideCenter - centerX);
-        if(dist < bestDist){ bestDist = dist; bestIdx = idx; }
-      });
-      setSwipeActiveIndex(bestIdx, { scroll: false });
+      const w = surface.clientWidth || window.innerWidth;
+      const idx = Math.round(surface.scrollLeft / w);
+      setSwipeActiveIndex(idx, { scroll: false });
     }, 90);
   }, { passive: true });
 
@@ -1563,9 +1560,8 @@ function initSwipeGestures(){
   surface.addEventListener('pointercancel', onPointerUp, { passive: true });
 
   // Mouse wheel / trackpad (reliable even when the page is scroll-locked):
-  // - Always prevent default and apply scrolling to the active card.
-  // - When at the top/bottom, wheel can navigate cards.
-  // - Trackpads can also send deltaX; treat that as swipe navigation.
+  // - Let the card scroll naturally.
+  // - Only intercept when at top/bottom to navigate between cards.
   surface.addEventListener('wheel', (e) => {
     if(!document.body.classList.contains('swipe-mode')) return;
     if(!swipeDeck.enabled) return;
@@ -1577,29 +1573,21 @@ function initSwipeGestures(){
     const absX = Math.abs(dx);
     const absY = Math.abs(dy);
 
-    // We'll manage scrolling manually.
-    e.preventDefault();
-
     // Trackpad horizontal swipe: scroll deck.
     if(absX > absY * 1.2 && absX > 6){
       if(wheelLock) return;
       wheelLock = true;
+      e.preventDefault();
       surface.scrollLeft += dx;
       window.setTimeout(() => { wheelLock = false; }, 220);
       return;
     }
 
-    // Vertical wheel: scroll inside card; when at ends, navigate.
+    // Vertical wheel: if card can scroll, let it.
     const down = dy > 0;
     const up = dy < 0;
-    const maxScrollTop = Math.max(0, active.scrollHeight - active.clientHeight);
 
-    if((down && canScrollDown(active)) || (up && canScrollUp(active))){
-      // Apply vertical scroll within card.
-      const nextTop = Math.max(0, Math.min(maxScrollTop, active.scrollTop + dy));
-      active.scrollTop = nextTop;
-      return;
-    }
+    if((down && canScrollDown(active)) || (up && canScrollUp(active))) return;
 
     // At top/bottom: navigate cards by snapping.
     if(wheelLock) return;
@@ -1607,6 +1595,7 @@ function initSwipeGestures(){
     const nextIndex = down ? swipeDeck.index + 1 : swipeDeck.index - 1;
     if(nextIndex < 0 || nextIndex >= swipeDeck.sections.length) return;
     wheelLock = true;
+    e.preventDefault();
     setSwipeActiveIndex(nextIndex, { scroll: true, behavior: 'smooth' });
     window.setTimeout(() => { wheelLock = false; }, 220);
   }, { passive: false });

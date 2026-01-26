@@ -323,13 +323,36 @@ body.swipe-mode main{ display: none; }
   backdrop-filter: blur(10px);
 }
 
+.swipe-overlay-bar{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  margin: 0 auto 10px;
+  width: min(1100px, 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(35,40,56,.75);
+  background: rgba(18,20,26,.78);
+}
+
+[data-bs-theme="light"] .swipe-overlay-bar{
+  border-color: rgba(16,24,40,.12);
+  background: rgba(255,255,255,.85);
+}
+
+.swipe-overlay-title{
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
 [data-bs-theme="light"] .swipe-overlay{
   background: rgba(255,255,255,.65);
 }
 
 .swipe-deck{
   position: relative;
-  height: 100%;
+  height: calc(100% - 52px);
   width: 100%;
 }
 

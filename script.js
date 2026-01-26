@@ -1083,13 +1083,26 @@ function ensureSwipeOverlay(){
   overlay.className = 'swipe-overlay';
   overlay.hidden = true;
 
+  const overlayBar = document.createElement('div');
+  overlayBar.className = 'swipe-overlay-bar';
+  overlayBar.innerHTML = `
+    <div class="swipe-overlay-title">Swipe Mode</div>
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="swipeCloseBtn" aria-label="Exit swipe mode">Exit</button>
+  `;
+
   const deck = document.createElement('div');
   deck.className = 'swipe-deck';
+  overlay.appendChild(overlayBar);
   overlay.appendChild(deck);
 
   document.body.appendChild(overlay);
   swipeDeck.overlayEl = overlay;
   swipeDeck.deckEl = deck;
+
+  const closeBtn = document.getElementById('swipeCloseBtn');
+  closeBtn?.addEventListener('click', () => {
+    setSwipeMode(false, { persist: true });
+  });
 }
 
 function showSwipeHintOnce(){
@@ -1113,6 +1126,15 @@ function enableSwipeDeck(){
 
   ensureSwipeOverlay();
   swipeDeck.overlayEl.hidden = false;
+  swipeDeck.overlayEl.style.display = 'block';
+
+  // Hard hide main content so the page can't behave like normal scroll.
+  const main = document.querySelector('main');
+  if(main) main.style.display = 'none';
+
+  // Hard lock scroll (extra safety for Safari/iOS)
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
 
   // Lock current page scroll position (helps iOS Safari + prevents jump)
   swipeDeck.savedScrollY = window.scrollY || 0;
@@ -1147,6 +1169,14 @@ function disableSwipeDeck(){
   swipeDeck.moved = false;
   swipeDeck.activeEl = null;
 
+  // Restore main content
+  const main = document.querySelector('main');
+  if(main) main.style.display = '';
+
+  // Release hard lock
+  document.documentElement.style.overflow = '';
+  document.body.style.overflow = '';
+
   // Restore sections back to main
   swipeDeck.restorePoints.forEach(({ sec, parent, next }) => {
     sec.classList.remove('swipe-card');
@@ -1175,6 +1205,7 @@ function disableSwipeDeck(){
 
   if(swipeDeck.overlayEl){
     swipeDeck.overlayEl.hidden = true;
+    swipeDeck.overlayEl.style.display = 'none';
   }
 }
 

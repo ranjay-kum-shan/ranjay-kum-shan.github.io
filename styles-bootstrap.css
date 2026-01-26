@@ -213,9 +213,13 @@ body{
 /* ====== Swipe Card Navigation (mobile) ====== */
 :root{
   --cards-bar-h: 86px;
+  --header-h: 84px;
 }
 
-body{ padding-bottom: calc(var(--cards-bar-h) + env(safe-area-inset-bottom, 0px)); }
+/* Old bottom card bar is now opt-in (kept for reference). */
+.section-cards{display: none;}
+body.section-cards-mode{ padding-bottom: calc(var(--cards-bar-h) + env(safe-area-inset-bottom, 0px)); }
+body.section-cards-mode .section-cards{display: flex;}
 
 .section-cards{
   position: fixed;
@@ -285,6 +289,99 @@ body{ padding-bottom: calc(var(--cards-bar-h) + env(safe-area-inset-bottom, 0px)
   border-color: rgba(124,58,237,.65);
   background: linear-gradient(90deg, rgba(124,58,237,.22), rgba(34,197,94,.14));
 
+
+/* ====== Tinder-style Swipe Deck Mode ====== */
+body.swipe-mode{
+  overflow: hidden;
+  padding-bottom: 0 !important;
+}
+
+body.swipe-mode #scrollProgress,
+body.swipe-mode #scrollToTop,
+body.swipe-mode footer,
+body.swipe-mode #sectionCards{
+  display: none !important;
+}
+
+body.swipe-mode main{
+  height: calc(100vh - var(--header-h));
+  overflow: hidden;
+  position: relative;
+}
+
+body.swipe-mode main section{
+  position: absolute;
+  inset: 0;
+
+  /* Make each section behave like a single card view */
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+
+  /* Override Bootstrap spacing for full-screen cards */
+  padding-top: 1.25rem !important;
+  padding-bottom: 1.25rem !important;
+
+  border-radius: 22px;
+  margin: 12px auto;
+  width: min(1100px, calc(100% - 24px));
+  box-shadow: 0 18px 55px rgba(0,0,0,.35);
+  border: 1px solid rgba(35,40,56,.75);
+  background: var(--bs-tertiary-bg);
+
+  touch-action: pan-y;
+  will-change: transform;
+}
+
+body.swipe-mode main section.hero-bs{
+  /* Keep hero gradient */
+  background:
+    radial-gradient(900px 500px at 15% -10%, var(--hero-grad-1), transparent 60%),
+    radial-gradient(700px 450px at 95% 0%, var(--hero-grad-2), transparent 60%),
+    var(--bs-tertiary-bg);
+}
+
+[data-bs-theme="light"] body.swipe-mode main section{
+  border-color: rgba(16,24,40,.12);
+  box-shadow: 0 18px 55px rgba(16,24,40,.12);
+}
+
+body.swipe-mode main section[data-swipe-hidden="true"]{
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.swipe-mode main section[data-swipe-active="true"]{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.swipe-mode main section[data-swipe-next="true"]{
+  opacity: 1;
+  pointer-events: none;
+  transform: translate3d(0, 10px, 0) scale(.985);
+}
+
+body.swipe-mode .swipe-hint{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 18px;
+  z-index: 1070;
+  font-size: .9rem;
+  padding: .4rem .75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(18,20,26,.72);
+  color: rgba(243,244,246,.86);
+  backdrop-filter: blur(10px);
+}
+
+[data-bs-theme="light"] body.swipe-mode .swipe-hint{
+  border-color: rgba(16,24,40,.12);
+  background: rgba(255,255,255,.85);
+  color: rgba(16,24,40,.75);
+}
 /* Hero subtle entrance */
 .hero-bs .reveal.visible{animation-duration: .65s}
 

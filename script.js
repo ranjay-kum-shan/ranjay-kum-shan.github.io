@@ -931,6 +931,16 @@ function initEvents(){
     setTheme(current === "dark" ? "light" : "dark");
   });
 
+  const swipeToggle = $("swipeModeToggle");
+  if(swipeToggle){
+    swipeToggle.addEventListener('click', () => {
+      const enabled = document.body.classList.toggle('swipe-mode');
+      swipeToggle.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+      if(enabled) enableSwipeDeck();
+      else disableSwipeDeck();
+    });
+  }
+
   $("refreshRepos").addEventListener("click", fetchGithubRepos);
   
   // Smooth scroll for navigation links
@@ -966,9 +976,113 @@ function initEvents(){
   initMobileNav();
 }
 
+let swipeDeck = {
+  enabled: false,
+  sections: [],
+  index: 0,
+  hintEl: null,
+  pointerId: null,
+  startX: 0,
+  startY: 0,
+  dragging: false,
+  moved: false,
+  activeEl: null
+};
+
+function setHeaderHeightVar(){
+  const header = document.querySelector('header');
+  const h = header ? header.getBoundingClientRect().height : 84;
+  document.documentElement.style.setProperty('--header-h', `${Math.round(h)}px`);
+}
+
 function getOrderedSections(){
   return Array.from(document.querySelectorAll('main section[id]'))
     .filter(s => s.id && s.id.trim().length > 0);
+}
+
+function getInitialSectionIndex(sections){
+  const id = (location.hash && location.hash.startsWith('#')) ? location.hash.slice(1) : null;
+  if(id){
+    const idx = sections.findIndex(s => s.id === id);
+    if(idx >= 0) return idx;
+  }
+  return 0;
+}
+
+function renderSwipeDeckState(){
+  const sections = swipeDeck.sections;
+  const idx = swipeDeck.index;
+  sections.forEach((sec, i) => {
+    sec.dataset.swipeHidden = (i !== idx && i !== idx + 1) ? 'true' : 'false';
+    sec.dataset.swipeActive = (i === idx) ? 'true' : 'false';
+    sec.dataset.swipeNext = (i === idx + 1) ? 'true' : 'false';
+    sec.style.zIndex = i === idx ? '3' : (i === idx + 1 ? '2' : '1');
+
+    if(i === idx){
+      // reset in case previous swipe left transform
+      sec.style.transition = '';
+      sec.style.transform = 'translate3d(0,0,0) rotate(0deg)';
+    }
+  });
+
+  const active = sections[idx];
+  swipeDeck.activeEl = active;
+  if(active){
+    history.replaceState(null, '', `#${active.id}`);
+  }
+}
+
+function showSwipeHintOnce(){
+  if(swipeDeck.hintEl) return;
+  const el = document.createElement('div');
+  el.className = 'swipe-hint';
+  el.textContent = 'Drag left/right to switch sections • Esc to exit';
+  document.body.appendChild(el);
+  swipeDeck.hintEl = el;
+  window.setTimeout(() => {
+    el.style.transition = 'opacity .35s ease';
+    el.style.opacity = '0';
+    window.setTimeout(() => el.remove(), 400);
+    swipeDeck.hintEl = null;
+  }, 2200);
+}
+
+function enableSwipeDeck(){
+  swipeDeck.enabled = true;
+  setHeaderHeightVar();
+
+  swipeDeck.sections = getOrderedSections();
+  swipeDeck.index = getInitialSectionIndex(swipeDeck.sections);
+
+  // Ensure previous layout artifacts are hidden
+  const cardsBar = $('sectionCards');
+  if(cardsBar) cardsBar.style.display = 'none';
+
+  renderSwipeDeckState();
+  showSwipeHintOnce();
+
+  window.addEventListener('resize', setHeaderHeightVar);
+}
+
+function disableSwipeDeck(){
+  swipeDeck.enabled = false;
+  swipeDeck.pointerId = null;
+  swipeDeck.dragging = false;
+  swipeDeck.moved = false;
+  swipeDeck.activeEl = null;
+
+  // Remove inline styles/datasets so normal scrolling looks normal
+  swipeDeck.sections.forEach(sec => {
+    delete sec.dataset.swipeHidden;
+    delete sec.dataset.swipeActive;
+    delete sec.dataset.swipeNext;
+    sec.style.transition = '';
+    sec.style.transform = '';
+    sec.style.zIndex = '';
+  });
+  swipeDeck.sections = [];
+
+  window.removeEventListener('resize', setHeaderHeightVar);
 }
 
 function getSectionLabel(section){
@@ -1147,78 +1261,121 @@ function initSectionCards(){
 }
 
 function initSwipeGestures(){
-  // Swipe left/right anywhere (except on inputs and the card bar) to jump sections.
-  const bar = $('sectionCards');
   const main = document.querySelector('main');
   if(!main) return;
 
-  const sections = getOrderedSections();
-  if(sections.length < 2) return;
-
-  function getActiveIndex(){
-    const id = (location.hash && location.hash.startsWith('#')) ? location.hash.slice(1) : null;
-    if(id){
-      const idx = sections.findIndex(s => s.id === id);
-      if(idx >= 0) return idx;
-    }
-    // fallback: nearest to top
-    let bestIdx = 0;
-    let bestDist = Infinity;
-    sections.forEach((sec, idx) => {
-      const dist = Math.abs(sec.getBoundingClientRect().top);
-      if(dist < bestDist){ bestDist = dist; bestIdx = idx; }
-    });
-    return bestIdx;
-  }
-
-  let startX = 0;
-  let startY = 0;
-  let startTarget = null;
-  let startPointerType = 'touch';
-
   function shouldIgnoreTarget(t){
     if(!t) return true;
-    if(bar && bar.contains(t)) return true;
     const tag = (t.tagName || '').toLowerCase();
-    if(['input','textarea','select','button','a'].includes(tag)) return true;
+    if(['input','textarea','select','button'].includes(tag)) return true;
+    // allow links to be clickable within the card (don't start swipe from a link)
+    if(tag === 'a') return true;
     return !!t.closest?.('[data-no-swipe]');
   }
 
-  main.addEventListener('pointerdown', (e) => {
+  function onPointerDown(e){
+    if(!document.body.classList.contains('swipe-mode')) return;
+    if(!swipeDeck.enabled) return;
     if(e.pointerType !== 'touch' && e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
     if(e.pointerType === 'mouse' && typeof e.button === 'number' && e.button !== 0) return;
-    startTarget = e.target;
-    startPointerType = e.pointerType || 'touch';
-    if(shouldIgnoreTarget(startTarget)) return;
-    startX = e.clientX;
-    startY = e.clientY;
-  }, { passive: true });
+    if(shouldIgnoreTarget(e.target)) return;
 
-  main.addEventListener('pointerup', (e) => {
-    if(!startTarget || shouldIgnoreTarget(startTarget)) return;
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
-    startTarget = null;
+    const active = swipeDeck.activeEl;
+    if(!active) return;
 
+    swipeDeck.pointerId = e.pointerId;
+    swipeDeck.startX = e.clientX;
+    swipeDeck.startY = e.clientY;
+    swipeDeck.dragging = true;
+    swipeDeck.moved = false;
+    active.style.transition = 'none';
+    try{ active.setPointerCapture(e.pointerId); }catch(_){ /* ignore */ }
+  }
+
+  function onPointerMove(e){
+    if(!document.body.classList.contains('swipe-mode')) return;
+    if(!swipeDeck.dragging) return;
+    if(swipeDeck.pointerId !== e.pointerId) return;
+    const active = swipeDeck.activeEl;
+    if(!active) return;
+
+    const dx = e.clientX - swipeDeck.startX;
+    const dy = e.clientY - swipeDeck.startY;
+    if(Math.abs(dx) > 4) swipeDeck.moved = true;
+
+    const rot = Math.max(-14, Math.min(14, dx / 22));
+    active.style.transform = `translate3d(${dx}px, ${dy * 0.08}px, 0) rotate(${rot}deg)`;
+  }
+
+  function animateBack(active){
+    active.style.transition = prefersReducedMotion() ? 'none' : 'transform 220ms ease';
+    active.style.transform = 'translate3d(0,0,0) rotate(0deg)';
+  }
+
+  function animateOut(active, dir){
+    const w = Math.max(320, window.innerWidth);
+    const x = dir * (w * 1.15);
+    const rot = dir * 18;
+    active.style.transition = prefersReducedMotion() ? 'none' : 'transform 240ms ease';
+    active.style.transform = `translate3d(${x}px, 0, 0) rotate(${rot}deg)`;
+  }
+
+  function goToIndex(nextIndex){
+    const clamped = Math.max(0, Math.min(nextIndex, swipeDeck.sections.length - 1));
+    swipeDeck.index = clamped;
+    renderSwipeDeckState();
+  }
+
+  function onPointerUp(e){
+    if(!document.body.classList.contains('swipe-mode')) return;
+    if(!swipeDeck.dragging) return;
+    if(swipeDeck.pointerId !== e.pointerId) return;
+
+    swipeDeck.dragging = false;
+    swipeDeck.pointerId = null;
+
+    const active = swipeDeck.activeEl;
+    if(!active) return;
+
+    const dx = e.clientX - swipeDeck.startX;
+    const dy = e.clientY - swipeDeck.startY;
     const absX = Math.abs(dx);
     const absY = Math.abs(dy);
-    const threshold = startPointerType === 'mouse' ? 110 : 60;
-    if(absX < threshold) return;
-    if(absX < absY * 1.4) return;
 
-    const current = getActiveIndex();
-    const next = dx < 0 ? Math.min(current + 1, sections.length - 1) : Math.max(current - 1, 0);
-    if(next === current) return;
-    sections[next].scrollIntoView({ behavior: 'smooth', block: 'start' });
-    history.replaceState(null, '', `#${sections[next].id}`);
-  }, { passive: true });
+    // Require a clear horizontal gesture.
+    const threshold = Math.max(90, Math.round(window.innerWidth * 0.22));
+    if(absX < threshold || absX < absY * 1.35){
+      animateBack(active);
+      return;
+    }
+
+    // Tinder-like navigation: left = next, right = previous
+    const dir = dx < 0 ? -1 : 1;
+    const nextIndex = dx < 0 ? swipeDeck.index + 1 : swipeDeck.index - 1;
+    if(nextIndex < 0 || nextIndex >= swipeDeck.sections.length){
+      animateBack(active);
+      return;
+    }
+
+    animateOut(active, dir);
+    window.setTimeout(() => {
+      // reset before showing again later
+      active.style.transition = '';
+      active.style.transform = 'translate3d(0,0,0) rotate(0deg)';
+      goToIndex(nextIndex);
+    }, prefersReducedMotion() ? 0 : 245);
+  }
+
+  main.addEventListener('pointerdown', onPointerDown, { passive: true });
+  main.addEventListener('pointermove', onPointerMove, { passive: true });
+  main.addEventListener('pointerup', onPointerUp, { passive: true });
+  main.addEventListener('pointercancel', onPointerUp, { passive: true });
 }
 
 (function init(){
   initTheme();
   renderProfile();
   initEvents();
-  initSectionCards();
   initSwipeGestures();
   initScrollAnimations();
   initLayerAnimations();
@@ -1231,3 +1388,24 @@ function initSwipeGestures(){
   // Update scroll progress on scroll
   window.addEventListener('scroll', updateScrollProgress);
 })();
+
+// Keyboard controls for swipe mode
+document.addEventListener('keydown', (e) => {
+  if(!document.body.classList.contains('swipe-mode')) return;
+  if(e.key === 'Escape'){
+    const btn = $('swipeModeToggle');
+    document.body.classList.remove('swipe-mode');
+    btn?.setAttribute('aria-pressed', 'false');
+    disableSwipeDeck();
+    return;
+  }
+  if(!swipeDeck.enabled) return;
+  if(e.key === 'ArrowLeft'){
+    swipeDeck.index = Math.max(0, swipeDeck.index - 1);
+    renderSwipeDeckState();
+  }
+  if(e.key === 'ArrowRight'){
+    swipeDeck.index = Math.min(swipeDeck.sections.length - 1, swipeDeck.index + 1);
+    renderSwipeDeckState();
+  }
+});

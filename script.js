@@ -979,6 +979,7 @@ function setSwipeMode(enabled, opts = { persist: true }){
 
   if(enabled){
     document.body.classList.add('swipe-mode');
+    document.documentElement.classList.add('swipe-mode');
     swipeToggle?.setAttribute('aria-pressed', 'true');
     if(swipeToggle){
       swipeToggle.classList.remove('btn-outline-secondary');
@@ -989,6 +990,7 @@ function setSwipeMode(enabled, opts = { persist: true }){
     showSwipeHintOnce();
   }else{
     document.body.classList.remove('swipe-mode');
+    document.documentElement.classList.remove('swipe-mode');
     swipeToggle?.setAttribute('aria-pressed', 'false');
     if(swipeToggle){
       swipeToggle.classList.add('btn-outline-secondary');
@@ -1007,6 +1009,7 @@ let swipeDeck = {
   enabled: false,
   sections: [],
   index: 0,
+  savedScrollY: 0,
   hintEl: null,
   pointerId: null,
   startX: 0,
@@ -1033,7 +1036,18 @@ function getInitialSectionIndex(sections){
     const idx = sections.findIndex(s => s.id === id);
     if(idx >= 0) return idx;
   }
-  return 0;
+
+  // If no hash, pick the section closest to the top of the viewport.
+  const header = document.querySelector('header');
+  const headerH = header ? header.getBoundingClientRect().height : 84;
+  let bestIdx = 0;
+  let bestDist = Infinity;
+  sections.forEach((sec, idx) => {
+    const top = sec.getBoundingClientRect().top;
+    const dist = Math.abs(top - headerH);
+    if(dist < bestDist){ bestDist = dist; bestIdx = idx; }
+  });
+  return bestIdx;
 }
 
 function renderSwipeDeckState(){
@@ -1078,6 +1092,11 @@ function enableSwipeDeck(){
   swipeDeck.enabled = true;
   setHeaderHeightVar();
 
+  // Lock current page scroll position (important for iOS Safari)
+  swipeDeck.savedScrollY = window.scrollY || 0;
+  document.body.style.setProperty('--swipe-lock-top', `-${swipeDeck.savedScrollY}px`);
+  document.documentElement.classList.add('swipe-mode');
+
   swipeDeck.sections = getOrderedSections();
   swipeDeck.index = getInitialSectionIndex(swipeDeck.sections);
 
@@ -1097,6 +1116,9 @@ function disableSwipeDeck(){
   swipeDeck.moved = false;
   swipeDeck.activeEl = null;
 
+  document.documentElement.classList.remove('swipe-mode');
+  document.body.style.setProperty('--swipe-lock-top', '0px');
+
   // Remove inline styles/datasets so normal scrolling looks normal
   swipeDeck.sections.forEach(sec => {
     delete sec.dataset.swipeHidden;
@@ -1109,6 +1131,11 @@ function disableSwipeDeck(){
   swipeDeck.sections = [];
 
   window.removeEventListener('resize', setHeaderHeightVar);
+
+  // Restore page scroll position
+  if(typeof swipeDeck.savedScrollY === 'number'){
+    window.scrollTo({ top: swipeDeck.savedScrollY, behavior: 'instant' });
+  }
 }
 
 function getSectionLabel(section){
@@ -1396,6 +1423,89 @@ function initSwipeGestures(){
   main.addEventListener('pointermove', onPointerMove, { passive: true });
   main.addEventListener('pointerup', onPointerUp, { passive: true });
   main.addEventListener('pointercancel', onPointerUp, { passive: true });
+
+  // Touch fallback (Mobile Safari reliability)
+  let touchActive = false;
+  function onTouchStart(e){
+    if(!document.body.classList.contains('swipe-mode')) return;
+    if(!swipeDeck.enabled) return;
+    if(!e.touches || e.touches.length !== 1) return;
+    if(shouldIgnoreTarget(e.target)) return;
+    const active = swipeDeck.activeEl;
+    if(!active) return;
+    touchActive = true;
+    swipeDeck.startX = e.touches[0].clientX;
+    swipeDeck.startY = e.touches[0].clientY;
+    active.style.transition = 'none';
+  }
+
+  function onTouchMove(e){
+    if(!touchActive) return;
+    const active = swipeDeck.activeEl;
+    if(!active) return;
+    const t = e.touches && e.touches[0];
+    if(!t) return;
+    const dx = t.clientX - swipeDeck.startX;
+    const dy = t.clientY - swipeDeck.startY;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+
+    // Only hijack when the gesture is clearly horizontal.
+    if(absX > 10 && absX > absY * 1.1){
+      e.preventDefault();
+      const rot = Math.max(-14, Math.min(14, dx / 22));
+      active.style.transform = `translate3d(${dx}px, ${dy * 0.08}px, 0) rotate(${rot}deg)`;
+    }
+  }
+
+  function onTouchEnd(e){
+    if(!touchActive) return;
+    touchActive = false;
+    const active = swipeDeck.activeEl;
+    if(!active) return;
+
+    const t = e.changedTouches && e.changedTouches[0];
+    if(!t) return;
+    const dx = t.clientX - swipeDeck.startX;
+    const dy = t.clientY - swipeDeck.startY;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    const threshold = Math.max(90, Math.round(window.innerWidth * 0.22));
+
+    function back(){
+      active.style.transition = prefersReducedMotion() ? 'none' : 'transform 220ms ease';
+      active.style.transform = 'translate3d(0,0,0) rotate(0deg)';
+    }
+
+    if(absX < threshold || absX < absY * 1.35){
+      back();
+      return;
+    }
+
+    const dir = dx < 0 ? -1 : 1;
+    const nextIndex = dx < 0 ? swipeDeck.index + 1 : swipeDeck.index - 1;
+    if(nextIndex < 0 || nextIndex >= swipeDeck.sections.length){
+      back();
+      return;
+    }
+
+    const w = Math.max(320, window.innerWidth);
+    const x = dir * (w * 1.15);
+    const rot = dir * 18;
+    active.style.transition = prefersReducedMotion() ? 'none' : 'transform 240ms ease';
+    active.style.transform = `translate3d(${x}px, 0, 0) rotate(${rot}deg)`;
+
+    window.setTimeout(() => {
+      active.style.transition = '';
+      active.style.transform = 'translate3d(0,0,0) rotate(0deg)';
+      swipeDeck.index = nextIndex;
+      renderSwipeDeckState();
+    }, prefersReducedMotion() ? 0 : 245);
+  }
+
+  main.addEventListener('touchstart', onTouchStart, { passive: true });
+  main.addEventListener('touchmove', onTouchMove, { passive: false });
+  main.addEventListener('touchend', onTouchEnd, { passive: true });
 }
 
 (function init(){

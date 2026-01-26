@@ -291,8 +291,19 @@ body.section-cards-mode .section-cards{display: flex;}
 
 
 /* ====== Tinder-style Swipe Deck Mode ====== */
+html.swipe-mode,
 body.swipe-mode{
+  height: 100%;
   overflow: hidden;
+}
+
+body.swipe-mode{
+  /* iOS Safari: overflow hidden on body alone isn't enough */
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--swipe-lock-top, 0px);
+  width: 100%;
   padding-bottom: 0 !important;
 }
 
@@ -347,8 +358,7 @@ body.swipe-mode main section.hero-bs{
 }
 
 body.swipe-mode main section[data-swipe-hidden="true"]{
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 
 body.swipe-mode main section[data-swipe-active="true"]{

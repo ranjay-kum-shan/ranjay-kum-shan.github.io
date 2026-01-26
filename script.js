@@ -1533,7 +1533,8 @@ function initSwipeGestures(){
     const absY = Math.abs(dy);
 
     // Only hijack when the gesture is clearly horizontal.
-    if(absX > 10 && absX > absY * 1.1){
+    // Be strict here so vertical scrolling doesn't get blocked on iOS Safari.
+    if(absX > 18 && absX > absY * 1.8){
       e.preventDefault();
       const rot = Math.max(-14, Math.min(14, dx / 22));
       active.style.transform = `translate3d(${dx}px, ${dy * 0.08}px, 0) rotate(${rot}deg)`;
@@ -1589,29 +1590,53 @@ function initSwipeGestures(){
   surface.addEventListener('touchmove', onTouchMove, { passive: false });
   surface.addEventListener('touchend', onTouchEnd, { passive: true });
 
-  // Mouse wheel / trackpad:
-  // - If the active card can scroll, let it scroll.
-  // - If it can't (top/bottom reached), wheel navigates cards.
+  // Mouse wheel / trackpad (reliable even when the page is scroll-locked):
+  // - Always prevent default and apply scrolling to the active card.
+  // - When at the top/bottom, wheel can navigate cards.
+  // - Trackpads can also send deltaX; treat that as swipe navigation.
   surface.addEventListener('wheel', (e) => {
     if(!document.body.classList.contains('swipe-mode')) return;
     if(!swipeDeck.enabled) return;
     const active = swipeDeck.activeEl;
     if(!active) return;
 
-    // If user is actively scrolling inside card, don't steal it.
-    const down = e.deltaY > 0;
-    const up = e.deltaY < 0;
-    if(down && canScrollDown(active)) return;
-    if(up && canScrollUp(active)) return;
+    const dx = e.deltaX || 0;
+    const dy = e.deltaY || 0;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
 
-    // Otherwise: treat as navigation (debounced)
+    // We'll manage scrolling manually.
+    e.preventDefault();
+
+    // Trackpad horizontal swipe: navigate cards.
+    if(absX > absY * 1.4 && absX > 10){
+      if(wheelLock) return;
+      const nextIndex = dx > 0 ? swipeDeck.index + 1 : swipeDeck.index - 1;
+      if(nextIndex < 0 || nextIndex >= swipeDeck.sections.length) return;
+      wheelLock = true;
+      swipeDeck.index = nextIndex;
+      renderSwipeDeckState();
+      window.setTimeout(() => { wheelLock = false; }, 220);
+      return;
+    }
+
+    // Vertical wheel: scroll inside card; when at ends, navigate.
+    const down = dy > 0;
+    const up = dy < 0;
+    const maxScrollTop = Math.max(0, active.scrollHeight - active.clientHeight);
+
+    if((down && canScrollDown(active)) || (up && canScrollUp(active))){
+      // Apply vertical scroll within card.
+      const nextTop = Math.max(0, Math.min(maxScrollTop, active.scrollTop + dy));
+      active.scrollTop = nextTop;
+      return;
+    }
+
+    // At top/bottom: navigate cards.
     if(wheelLock) return;
-    if(Math.abs(e.deltaY) < 6) return;
-
+    if(absY < 6) return;
     const nextIndex = down ? swipeDeck.index + 1 : swipeDeck.index - 1;
     if(nextIndex < 0 || nextIndex >= swipeDeck.sections.length) return;
-
-    e.preventDefault();
     wheelLock = true;
     swipeDeck.index = nextIndex;
     renderSwipeDeckState();

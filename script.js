@@ -934,8 +934,9 @@ function initEvents(){
   const swipeToggle = $("swipeModeToggle");
   if(swipeToggle){
     swipeToggle.addEventListener('click', () => {
-      const enabled = !document.body.classList.contains('swipe-mode');
-      setSwipeMode(enabled, { persist: true });
+      // Open the separate swipe-portfolio build hosted under /swipe/
+      // Use a relative URL so it works for both custom domains and repo pages.
+      window.location.href = 'swipe/';
     });
   }
 

@@ -1,5 +1,5 @@
-// Edit this file to customize your portfolio content.
-// Tip: You can update this anytime and re-deploy (or just push changes).
+// Portfolio data loader
+// Edit data in: data/profile.json
 
 window.PROFILE = {
   name: "Ranjay Kumar",
@@ -177,3 +177,19 @@ window.PROFILE = {
   githubUsername: "ranjay-kum-shan",
   githubRepoCount: 6 // number of repos to show in the GitHub feed
 };
+
+// Load the editable JSON data (preferred). Keep the JS object above as a fallback.
+// script.js will wait for this promise before first render.
+window.__PROFILE_READY__ = (async () => {
+  try {
+    const res = await fetch('data/profile.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Failed to load profile.json (${res.status})`);
+    const json = await res.json();
+    if (json && typeof json === 'object') {
+      window.PROFILE = json;
+    }
+  } catch (e) {
+    // Fallback stays in place.
+    console.warn('Using fallback PROFILE from profile.js:', e);
+  }
+})();

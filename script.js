@@ -1602,8 +1602,11 @@ function initSwipeGestures(){
   }, { passive: false });
 }
 
-(function init(){
+(async function init(){
   initTheme();
+  if(window.__PROFILE_READY__ && typeof window.__PROFILE_READY__.then === 'function'){
+    try{ await window.__PROFILE_READY__; }catch(_){ /* ignore */ }
+  }
   renderProfile();
   initEvents();
   initSwipeGestures();

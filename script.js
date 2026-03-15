@@ -83,23 +83,62 @@ function updateScrollProgress() {
 function initScrollToTop() {
   const scrollBtn = $('scrollToTop');
   if (!scrollBtn) return;
-  
+
+  const header = document.querySelector('header');
+
   window.addEventListener('scroll', () => {
     if (window.scrollY > 300) {
       scrollBtn.classList.add('visible');
     } else {
       scrollBtn.classList.remove('visible');
     }
-    
+
+    // Navbar shrink after scrolling past hero
+    if (header) {
+      if (window.scrollY > 80) {
+        header.classList.add('navbar-shrunk');
+      } else {
+        header.classList.remove('navbar-shrunk');
+      }
+    }
+
     updateScrollProgress();
   });
-  
+
   scrollBtn.addEventListener('click', () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
   });
+}
+
+// Active nav link tracking via IntersectionObserver
+function initActiveNav() {
+  if (!isBootstrapUI()) return;
+
+  const navLinks = document.querySelectorAll('#primaryNav .nav-link[href^="#"]');
+  if (!navLinks.length) return;
+
+  const sectionMap = new Map();
+  navLinks.forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    const section = document.getElementById(id);
+    if (section) sectionMap.set(section, link);
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const link = sectionMap.get(entry.target);
+      if (!link) return;
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('nav-active'));
+        link.classList.add('nav-active');
+      }
+    });
+  }, { threshold: 0.35, rootMargin: '-80px 0px -40% 0px' });
+
+  sectionMap.forEach((_, section) => observer.observe(section));
 }
 
 // Parallax scrolling effect for layers
@@ -338,9 +377,17 @@ function renderProfile(){
   (p.skills || []).forEach((group, i) => {
     const card = document.createElement("div");
     if(isBootstrapUI()){
+      const catLower = (group.category || '').toLowerCase();
+      const catClass =
+        catLower.includes('language') || catLower.includes('lang') ? 'skill-cat-lang' :
+        catLower.includes('tool') || catLower.includes('platform') || catLower.includes('dev') ? 'skill-cat-tools' :
+        catLower.includes('ml') || catLower.includes('ai') || catLower.includes('machine') || catLower.includes('data') ? 'skill-cat-ml' :
+        catLower.includes('framework') || catLower.includes('library') || catLower.includes('lib') ? 'skill-cat-fw' :
+        catLower.includes('hardware') || catLower.includes('hw') || catLower.includes('embedded') || catLower.includes('protocol') ? 'skill-cat-hw' :
+        '';
       card.className = "col-md-6 col-lg-4";
       const inner = document.createElement("div");
-      inner.className = "card h-100 shadow-sm";
+      inner.className = `card h-100 shadow-sm ${catClass}`;
       const body = document.createElement("div");
       body.className = "card-body";
 
@@ -1624,6 +1671,7 @@ function initSwipeGestures(){
     initParallax();
   }
   initScrollToTop();
+  initActiveNav();
   fetchGithubRepos();
   
   // Update scroll progress on scroll

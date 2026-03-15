@@ -50,9 +50,21 @@
   --bs-btn-hover-border-color: rgba(124,58,237,.55);
 }
 
-html{scroll-behavior:smooth; scroll-padding-top: 84px;}
+html{scroll-behavior:smooth; scroll-padding-top: 84px; scrollbar-gutter: stable;}
 body{
   font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3{ text-wrap: balance; }
+
+a{ text-underline-offset: 3px; }
+
+:focus-visible{
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 3px;
 }
 
 /* Subtle frosted header background helper */
@@ -76,15 +88,23 @@ body{
     radial-gradient(700px 450px at 95% 0%, var(--hero-grad-2), transparent 60%);
 }
 
+[data-bs-theme="dark"] .hero-bs{
+  background-image:
+    radial-gradient(rgba(124,58,237,.055) 1px, transparent 1px),
+    radial-gradient(900px 500px at 15% -10%, var(--hero-grad-1), transparent 60%),
+    radial-gradient(700px 450px at 95% 0%, var(--hero-grad-2), transparent 60%);
+  background-size: 28px 28px, auto, auto;
+}
+
 .hero-title{
-  background: linear-gradient(90deg, rgba(255,255,255,.98), rgba(124,58,237,.92), rgba(34,197,94,.78));
+  background: linear-gradient(105deg, #fff 50%, #7c3aed 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 [data-bs-theme="light"] .hero-title{
-  background: linear-gradient(90deg, rgba(16,24,40,.95), rgba(124,58,237,.95), rgba(16,24,40,.8));
+  background: linear-gradient(105deg, #101828 45%, #6d28d9 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -151,8 +171,20 @@ body{
 
 /* Small hover polish */
 .card{transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;}
-.card:hover{transform: translateY(-4px)}
+.card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 1px rgba(124,58,237,.3), 0 12px 32px rgba(0,0,0,.4) !important;
+}
 [data-bs-theme="dark"] .card{box-shadow: 0 16px 46px rgba(0,0,0,.35)}
+[data-bs-theme="light"] .card{box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.05);}
+[data-bs-theme="light"] .card:hover{
+  box-shadow: 0 0 0 1px rgba(109,40,217,.25), 0 8px 24px rgba(0,0,0,.12) !important;
+}
+
+/* Experience cards — left accent border */
+#experienceTimeline .card{
+  border-left: 3px solid var(--accent) !important;
+}
 
 /* Patent cards */
 .patent-card-bs{
@@ -288,7 +320,7 @@ body.section-cards-mode .section-cards{display: flex;}
 .section-card.is-active{
   border-color: rgba(124,58,237,.65);
   background: linear-gradient(90deg, rgba(124,58,237,.22), rgba(34,197,94,.14));
-
+}
 
 /* ====== Tinder-style Swipe Deck Mode ====== */
 html.swipe-mode,
@@ -436,6 +468,64 @@ body.swipe-mode .swipe-hint{
 }
 /* Hero subtle entrance */
 .hero-bs .reveal.visible{animation-duration: .65s}
+
+/* ====== Section heading accent underline ====== */
+.section-title{
+  position: relative;
+  display: inline-block;
+  padding-bottom: 10px;
+}
+.section-title::after{
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 36px;
+  height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+/* ====== Navbar shrink on scroll ====== */
+.navbar-shrunk .navbar > .container{
+  padding-top: .35rem !important;
+  padding-bottom: .35rem !important;
+  transition: padding .2s ease;
+}
+.navbar > .container{
+  transition: padding .2s ease;
+}
+
+/* ====== Active nav link indicator ====== */
+.navbar-nav .nav-link.nav-active{
+  color: var(--accent) !important;
+  font-weight: 600;
+}
+[data-bs-theme="light"] .navbar-nav .nav-link.nav-active{
+  color: #6d28d9 !important;
+}
+
+/* ====== Contact card hover ====== */
+#contact .card a.d-block{
+  transition: border-color .14s ease, transform .14s ease, background-color .14s ease;
+}
+#contact .card a.d-block:hover{
+  border-color: rgba(124,58,237,.45) !important;
+  transform: translateY(-2px);
+}
+
+/* ====== Skill badge category color classes ====== */
+.skill-cat-lang   .badge{ background-color: rgba(124,58,237,.2)  !important; color: #c4b5fd !important; }
+.skill-cat-tools  .badge{ background-color: rgba(34,197,94,.15)  !important; color: #86efac !important; }
+.skill-cat-ml     .badge{ background-color: rgba(245,158,11,.15) !important; color: #fcd34d !important; }
+.skill-cat-fw     .badge{ background-color: rgba(59,130,246,.15) !important; color: #93c5fd !important; }
+.skill-cat-hw     .badge{ background-color: rgba(239,68,68,.15)  !important; color: #fca5a5 !important; }
+
+[data-bs-theme="light"] .skill-cat-lang  .badge{ background-color: rgba(124,58,237,.12) !important; color: #6d28d9 !important; }
+[data-bs-theme="light"] .skill-cat-tools .badge{ background-color: rgba(34,197,94,.12)  !important; color: #16a34a !important; }
+[data-bs-theme="light"] .skill-cat-ml    .badge{ background-color: rgba(245,158,11,.12) !important; color: #b45309 !important; }
+[data-bs-theme="light"] .skill-cat-fw    .badge{ background-color: rgba(59,130,246,.12) !important; color: #1d4ed8 !important; }
+[data-bs-theme="light"] .skill-cat-hw    .badge{ background-color: rgba(239,68,68,.12)  !important; color: #b91c1c !important; }
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce){

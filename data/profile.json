@@ -16,7 +16,7 @@
     },
     {
       "label": "Email",
-      "url": "mailto:shandilya.ranjay@gmail.com"
+      "url": "mailto:ranjay@gmail.com"
     }
   ],
   "about": "I'm an Embedded Engineer with a passion for building efficient, reliable systems. I specialize in firmware development, bare-metal programming, and creating solutions that bridge hardware and software. With experience in C/C++, Python, and various microcontroller platforms, I enjoy tackling complex technical challenges and optimizing system performance. I hold a patent in emergency exit route indication systems for building management and am always eager to learn new technologies and contribute to innovative projects.",
@@ -273,7 +273,7 @@
     }
   ],
   "contact": {
-    "email": "shandilya.ranjay@gmail.com",
+    "email": "ranjay@gmail.com",
     "linkedin": "https://www.linkedin.com/in/ranjay-kumar-2a3344a9",
     "blurb": "I'm actively seeking opportunities in embedded systems and firmware development. Whether you have an exciting project, job opportunity, or just want to discuss embedded technologies, feel free to reach out!"
   },
